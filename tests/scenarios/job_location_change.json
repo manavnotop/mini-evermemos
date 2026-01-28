@@ -1,0 +1,81 @@
+# Test scenario for job and location changes (profile evolution)
+{
+  "scenario": "job_location_change",
+  "description": "User's job and location change over time",
+  "messages": [
+    {
+      "id": "msg_001",
+      "role": "user",
+      "content": "I just graduated from college with a degree in computer science.",
+      "timestamp": "2024-05-01T10:00:00Z"
+    },
+    {
+      "id": "msg_002",
+      "role": "user",
+      "content": "I accepted a job offer at Google in San Francisco!",
+      "timestamp": "2024-06-15T10:00:00Z"
+    },
+    {
+      "id": "msg_003",
+      "role": "user",
+      "content": "Moved into my new apartment in downtown SF. The commute is only 15 minutes!",
+      "timestamp": "2024-07-01T10:00:00Z"
+    },
+    {
+      "id": "msg_004",
+      "role": "user",
+      "content": "Got promoted to senior engineer at Google after 6 months!",
+      "timestamp": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "msg_005",
+      "role": "user",
+      "content": "I'm moving to NYC for a new job opportunity at Meta.",
+      "timestamp": "2025-02-01T10:00:00Z"
+    },
+    {
+      "id": "msg_006",
+      "role": "user",
+      "content": "Just signed a lease on a place in Brooklyn. Missing SF already!",
+      "timestamp": "2025-02-15T10:00:00Z"
+    }
+  ],
+  "profile_evolution": [
+    {
+      "query_time": "2024-06-16T00:00:00Z",
+      "expected_profile": {
+        "job": "Google",
+        "location": "San Francisco",
+        "education": "Computer Science degree"
+      }
+    },
+    {
+      "query_time": "2024-12-21T00:00:00Z",
+      "expected_profile": {
+        "job": "Senior Engineer at Google",
+        "location": "San Francisco",
+        "education": "Computer Science degree"
+      }
+    },
+    {
+      "query_time": "2025-02-16T00:00:00Z",
+      "expected_profile": {
+        "job": "Meta",
+        "location": "Brooklyn, NYC",
+        "education": "Computer Science degree"
+      }
+    }
+  ],
+  "test_queries": [
+    {
+      "query": "Where does the user work?",
+      "expected_location": "NYC",
+      "query_time": "2025-03-01T00:00:00Z"
+    },
+    {
+      "query": "Where does the user live?",
+      "expected_location": "Brooklyn",
+      "query_time": "2025-03-01T00:00:00Z"
+    }
+  ]
+}

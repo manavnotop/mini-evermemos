@@ -1,0 +1,57 @@
+# Test scenario for dietary preference change (conflict detection)
+{
+  "scenario": "dietary_change",
+  "description": "User changes dietary preference from vegetarian to eating meat",
+  "messages": [
+    {
+      "id": "msg_001",
+      "role": "user",
+      "content": "I've been a vegetarian for 5 years now. I love it!",
+      "timestamp": "2025-01-01T10:00:00Z"
+    },
+    {
+      "id": "msg_002",
+      "role": "assistant",
+      "content": "That's great! How did you get into it?",
+      "timestamp": "2025-01-01T10:01:00Z"
+    },
+    {
+      "id": "msg_003",
+      "role": "user",
+      "content": "Mainly for health and ethical reasons. I feel much better not eating meat.",
+      "timestamp": "2025-01-01T10:02:00Z"
+    },
+    {
+      "id": "msg_004",
+      "role": "user",
+      "content": "Actually, I started eating meat again last month. I tried a steak and it was amazing!",
+      "timestamp": "2025-02-15T10:00:00Z"
+    },
+    {
+      "id": "msg_005",
+      "role": "assistant",
+      "content": "Oh interesting! What made you change your mind?",
+      "timestamp": "2025-02-15T10:01:00Z"
+    },
+    {
+      "id": "msg_006",
+      "role": "user",
+      "content": "I just felt like trying it again and now I love having burgers and steaks.",
+      "timestamp": "2025-02-15T10:02:00Z"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "type": "direct_contradiction",
+      "old_fact": "User is vegetarian",
+      "new_fact": "User eats meat (burgers, steaks)"
+    }
+  ],
+  "test_queries": [
+    {
+      "query": "Is the user a vegetarian?",
+      "expected_answer_contains": ["no", "not", "eats meat", "burgers", "steaks"],
+      "query_time": "2025-03-01T00:00:00Z"
+    }
+  ]
+}

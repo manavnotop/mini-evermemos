@@ -1,0 +1,71 @@
+# Test scenario for temporary health condition (foresight expiry)
+{
+  "scenario": "health_condition",
+  "description": "User mentions temporary health conditions that should expire",
+  "messages": [
+    {
+      "id": "msg_001",
+      "role": "user",
+      "content": "I went to the doctor today and got prescribed antibiotics for a throat infection.",
+      "timestamp": "2025-01-20T10:00:00Z"
+    },
+    {
+      "id": "msg_002",
+      "role": "assistant",
+      "content": "How long do you need to take them?",
+      "timestamp": "2025-01-20T10:01:00Z"
+    },
+    {
+      "id": "msg_003",
+      "role": "user",
+      "content": "Just for 5 days, should be done by Friday.",
+      "timestamp": "2025-01-20T10:02:00Z"
+    },
+    {
+      "id": "msg_004",
+      "role": "user",
+      "content": "I'm traveling to Paris next week for vacation.",
+      "timestamp": "2025-01-20T10:05:00Z"
+    },
+    {
+      "id": "msg_005",
+      "role": "user",
+      "content": "My gym membership is on hold until my ankle heals.",
+      "timestamp": "2025-01-22T10:00:00Z"
+    }
+  ],
+  "expected_foresight": [
+    {
+      "description": "On antibiotics for throat infection",
+      "validity_days": 5
+    },
+    {
+      "description": "Traveling to Paris next week",
+      "validity_days": 14
+    },
+    {
+      "description": "Gym membership on hold until ankle heals",
+      "validity_days": 30
+    }
+  ],
+  "expiry_tests": [
+    {
+      "query_time": "2025-01-22T00:00:00Z",
+      "expect_antibiotics": true,
+      "expect_paris_travel": true,
+      "expect_gym_on_hold": true
+    },
+    {
+      "query_time": "2025-02-01T00:00:00Z",
+      "expect_antibiotics": false,
+      "expect_paris_travel": false,
+      "expect_gym_on_hold": true
+    },
+    {
+      "query_time": "2025-03-01T00:00:00Z",
+      "expect_antibiotics": false,
+      "expect_paris_travel": false,
+      "expect_gym_on_hold": false
+    }
+  ]
+}

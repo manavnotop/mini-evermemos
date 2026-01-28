@@ -1,0 +1,59 @@
+# Test scenario for temporal queries (retrieval varies by timestamp)
+{
+  "scenario": "temporal_queries",
+  "description": "Retrieval returns different results based on query timestamp",
+  "messages": [
+    {
+      "id": "msg_001",
+      "role": "user",
+      "content": "I'm planning a trip to Japan next month.",
+      "timestamp": "2025-01-05T10:00:00Z"
+    },
+    {
+      "id": "msg_002",
+      "role": "user",
+      "content": "The Japan trip was amazing! Loved every minute of it.",
+      "timestamp": "2025-02-10T10:00:00Z"
+    },
+    {
+      "id": "msg_003",
+      "role": "user",
+      "content": "Just booked my flight to Japan for April.",
+      "timestamp": "2025-03-01T10:00:00Z"
+    },
+    {
+      "id": "msg_004",
+      "role": "user",
+      "content": "Japan trip is next week, so excited!",
+      "timestamp": "2025-03-20T10:00:00Z"
+    },
+    {
+      "id": "msg_005",
+      "role": "user",
+      "content": "Back from Japan, already missing the food!",
+      "timestamp": "2025-04-15T10:00:00Z"
+    }
+  ],
+  "temporal_tests": [
+    {
+      "name": "Before any trip",
+      "query_time": "2025-01-01T00:00:00Z",
+      "expected_messages_containing": []
+    },
+    {
+      "name": "Between first trip planning and actual trip",
+      "query_time": "2025-01-10T00:00:00Z",
+      "expected_foresight": ["trip to Japan next month"]
+    },
+    {
+      "name": "During second trip planning",
+      "query_time": "2025-03-05T00:00:00Z",
+      "expected_foresight": ["flight to Japan for April", "trip is next week"]
+    },
+    {
+      "name": "After returning from second trip",
+      "query_time": "2025-04-20T00:00:00Z",
+      "expected_past_context": ["trip was amazing", "back from Japan"]
+    }
+  ]
+}
