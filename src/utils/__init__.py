@@ -8,8 +8,13 @@ from .datetime_utils import (
     now_utc,
     parse_datetime,
 )
-from .embeddings import EmbeddingService, MockEmbeddings
-from .llm import LLMProvider, MockProvider
+from .embeddings import (
+    EmbeddingService,
+    MockEmbeddings,
+    OpenAIEmbeddings,
+    get_embedding_service,
+)
+from .llm import LLMProvider, MockProvider, get_llm_provider
 
 __all__ = [
     "LLMProvider",
@@ -23,4 +28,7 @@ __all__ = [
     "is_within_interval",
     "default_foresight_expiry_days",
     "infer_validity_duration",
+    "get_llm_provider",
+    "OpenAIEmbeddings",
+    "get_embedding_service",
 ]

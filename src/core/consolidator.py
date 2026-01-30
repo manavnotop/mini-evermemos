@@ -285,6 +285,7 @@ Format as JSON:
         self,
         memcell: MemCell,
         user_id: str = "default",
+        auto_resolve: bool = True,
     ) -> Dict[str, Any]:
         """
         Full consolidation process for a MemCell.
@@ -309,6 +310,12 @@ Format as JSON:
 
         # Detect conflicts
         conflicts = self.detect_conflicts(memcell, scene)
+
+        # Resolve conflicts if requested
+        if auto_resolve and conflicts:
+            for conflict in conflicts:
+                # Default to recency for now as per requirements
+                self.resolve_conflict(conflict, resolution="recency")
 
         # Update user profile
         self.update_user_profile(user_id=user_id)

@@ -1,299 +1,387 @@
-#!/usr/bin/env python3
-"""
-Scale evaluation for the memory system.
 
-Tests performance and quality at various message counts:
-- 100 messages: Basic extraction, scene formation, simple retrieval
-- 200 messages: Conflict detection, deduplication
-- 300 messages: Foresight expiry, profile evolution
-- 500+ messages: Performance and relevance
+"""
+Scale evaluation for the memory system using Locomo10 dataset.
 """
 
+import argparse
+import json
+import os
 import random
 import time
-from typing import Any, Dict, List
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
 from src.core import MemorySystem
+from src.utils import get_llm_provider, now_utc
 
 
-def generate_synthetic_conversation(
-    topic: str,
-    num_messages: int = 5,
-    include_foresight: bool = True,
-) -> List[Dict[str, str]]:
-    """Generate synthetic conversation on a topic."""
-    templates = {
-        "career": [
-            ("user", "I've been working at {company} as a {role}."),
-            ("assistant", "That sounds interesting! What do you do there?"),
-            ("user", "I mainly focus on {task}."),
-            ("user", "I've been there for {years} years now."),
-        ],
-        "health": [
-            ("user", "I've started {exercise} {frequency}."),
-            ("assistant", "How's that going for you?"),
-            ("user", "It's been {outcome}! I feel much better."),
-            ("user", "I try to {habit} every day."),
-        ],
-        "hobbies": [
-            ("user", "I've picked up {hobby} as a new hobby."),
-            ("assistant", "What got you interested in that?"),
-            ("user", "I find it {adjective} and relaxing."),
-            ("user", "I practice {frequency}."),
-        ],
-        "food": [
-            ("user", "I've been trying {cuisine} food lately."),
-            ("assistant", "What's your favorite dish?"),
-            ("user", "I really love {dish}!"),
-            ("user", "I cook {dish} at home {frequency}."),
-        ],
-        "travel": [
-            ("user", "I'm planning a trip to {destination}."),
-            ("assistant", "When are you going?"),
-            ("user", "I'll be there {timeframe}."),
-            ("user", "I'm excited to {activity} there."),
-        ],
-    }
-
-    topic_templates = templates.get(topic, templates["career"])
-    messages = []
-
-    for role, content_template in topic_templates[:num_messages]:
-        content = content_template.format(
-            company=random.choice(["Google", "Meta", "Amazon", "Startup", "Microsoft"]),
-            role=random.choice(["engineer", "designer", "manager", "analyst"]),
-            task=random.choice(
-                [
-                    "backend systems",
-                    "machine learning",
-                    "user experience",
-                    "data analysis",
-                ]
-            ),
-            years=random.choice(["1", "2", "3", "5"]),
-            exercise=random.choice(["running", "yoga", "gym", "swimming"]),
-            frequency=random.choice(["every day", "3 times a week", "on weekends"]),
-            outcome=random.choice(["great", "amazing", "really good"]),
-            habit=random.choice(["stretching", "meditating", "walking"]),
-            hobby=random.choice(["guitar", "photography", "painting", "hiking"]),
-            adjective=random.choice(["creative", "mindful", "challenging", "fun"]),
-            cuisine=random.choice(["Italian", "Japanese", "Mexican", "Indian"]),
-            dish=random.choice(["pizza", "sushi", "tacos", "curry"]),
-            destination=random.choice(["Paris", "Tokyo", "Mexico", "India"]),
-            timeframe=random.choice(["next month", "in spring", "this summer"]),
-            activity=random.choice(["try local food", "see the sights", "take photos"]),
-        )
-        messages.append({"role": role, "content": content})
-
-    return messages
+def load_locomo_data(path: str) -> List[Dict[str, Any]]:
+    """Load Locomo dataset."""
+    with open(path, "r") as f:
+        return json.load(f)
 
 
-def generate_foresight_conversation(
-    topic: str,
-    days_until_start: int = 0,
-    duration_days: int = 7,
-) -> List[Dict[str, str]]:
-    """Generate conversation with foresight element."""
-    templates = {
-        "health": "I'm starting a {treatment} for {condition}. It lasts {duration}.",
-        "travel": "I'm going to {destination} for {duration}. I leave in {start}.",
-        "work": "I'm starting a new {project} at work. It runs for {duration}.",
-    }
-
-    template = templates.get(topic, templates["health"])
-    content = template.format(
-        treatment=random.choice(["antibiotics", "vitamin regimen", "physical therapy"]),
-        condition=random.choice(["infection", "deficiency", "injury"]),
-        destination=random.choice(["Paris", "Tokyo", "New York"]),
-        project=random.choice(["product launch", "migration", "research"]),
-        duration=f"{duration_days} days" if duration_days < 30 else "a month",
-        start=f"{days_until_start} days",
-    )
-
-    return [{"role": "user", "content": content}]
 
 
-def run_scale_test(message_count: int) -> Dict[str, Any]:
-    """Run a scale test with the given message count."""
+
+def parse_session_date(date_str: str) -> datetime:
+    """Parse Locomo session date string (e.g. '1:56 pm on 8 May, 2023')."""
+    try:
+        # Normalize: '1:56 pm on 8 May, 2023' -> '8 May 2023 1:56 pm'
+        parts = date_str.split(" on ")
+        if len(parts) == 2:
+            time_part = parts[0]
+            date_part = parts[1]
+            full_str = f"{date_part} {time_part}"
+            dt = datetime.strptime(full_str, "%d %B, %Y %I:%M %p")
+            return dt.replace(tzinfo=timezone.utc)
+    except Exception:
+        pass
+    return now_utc()
+
+
+def extract_locomo_sessions(
+    data: List[Dict[str, Any]], limit_messages: Optional[int] = None
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Extract chronological sessions and relevant QA pairs.
+
+    Returns:
+        (sessions, qa_pairs)
+        sessions: List of {"messages": [...], "timestamp": datetime}
+        qa_pairs: List of QA dicts valid for the extracted range
+    """
+    all_sessions = []
+    valid_qa = []
+    processed_dia_ids = set()
+    message_count = 0
+
+    # Locomo structure is a list, but usually just one big object with 'conversation'
+    # We iterate properly just in case
+    for entry in data:
+        conversation = entry.get("conversation", {})
+        qa_list = entry.get("qa", [])
+
+        # 1. Extract and sort sessions
+        sessions_map = {}
+        for key, value in conversation.items():
+            if (
+                key.startswith("session_")
+                and isinstance(value, list)
+                and "date_time" not in key
+            ):
+                # Found a session list (e.g. "session_1")
+                # Try to find corresponding date
+                date_key = f"{key}_date_time"
+                date_str = conversation.get(date_key, "")
+                timestamp = parse_session_date(date_str)
+
+                # Extract session number for sorting
+                try:
+                    sess_num = int(key.split("_")[1])
+                except ValueError:
+                    sess_num = 9999
+
+                sessions_map[sess_num] = {
+                    "messages": value,
+                    "timestamp": timestamp,
+                    "id": key,
+                }
+
+        # Sort by session number
+        sorted_keys = sorted(sessions_map.keys())
+
+        for key in sorted_keys:
+            if limit_messages is not None and message_count >= limit_messages:
+                break
+
+            session_data = sessions_map[key]
+            raw_msgs = session_data["messages"]
+
+            # Format for MemorySystem
+            formatted_msgs = []
+            for msg in raw_msgs:
+                if limit_messages is not None and message_count >= limit_messages:
+                    break
+
+                formatted_msgs.append(
+                    {
+                        "role": "user"
+                        if msg["speaker"] == "Caroline"
+                        else "assistant",
+                        "content": msg["text"],
+                    }
+                )
+                processed_dia_ids.add(msg["dia_id"])
+                message_count += 1
+
+            if formatted_msgs:
+                all_sessions.append(
+                    {"messages": formatted_msgs, "timestamp": session_data["timestamp"]}
+                )
+
+        # 2. Filter QA pairs based on processed dialogue
+        # A QA is valid if ALL its evidence points to processed lines
+        if limit_messages is not None:
+            for qa in qa_list:
+                evidence = qa.get("evidence", [])
+                # If evidence matches processed IDs
+                # Note: evidence is ["D1:3", "D18:5"]
+                # We need to clean them or check basic containment
+                # Locomo ID format in evidence matches "dia_id" in text?
+                # Yes: "D1:3" matches "dia_id": "D1:3"
+
+                if not evidence:
+                    continue  # specific logic for no-evidence? Assume usually needs context.
+
+                is_valid = True
+                for ev in evidence:
+                    # Handle multiple evidence separated by semicolon if any
+                    sub_evs = ev.split(";")
+                    for sub in sub_evs:
+                        clean_id = sub.strip()
+                        if clean_id not in processed_dia_ids:
+                            is_valid = False
+                            break
+                    if not is_valid:
+                        break
+
+                if is_valid:
+                    valid_qa.append(qa)
+        else:
+            valid_qa.extend(qa_list)
+
+        if limit_messages is not None and message_count >= limit_messages:
+            break
+
+    return all_sessions, valid_qa
+
+
+def run_locomo_eval(
+    data_path: str,
+    limit_messages: Optional[int] = None,
+    provider: str = "openai",
+    output_file: Optional[str] = None,
+) -> None:
+    """Run evaluation on Locomo dataset with incremental checkpoints."""
     print(f"\n{'=' * 60}")
-    print(f"Running scale test with {message_count} messages")
+    print(f"LOCOMO INCREMENTAL EVALUATION")
+    print(f"Target Checkpoints: 100, 200, 300, 500+ messages")
     print(f"{'=' * 60}")
+
+    # 1. Initialize System
+    llm = get_llm_provider(provider, model="gpt-4o-mini")
+
+    from src.utils import OpenAIEmbeddings
+
+    embeddings = OpenAIEmbeddings()
+
+    system = MemorySystem(
+        llm_provider=llm, embedding_service=embeddings, storage_dir="./locomo_mem_data"
+    )
+    system.clear()  # Start fresh
+
+    # 2. Load Data
+    data = load_locomo_data(data_path)
+    # Load ALL sessions initially, we will control limit manually during ingestion
+    all_sessions, all_qa_pairs = extract_locomo_sessions(data, limit_messages=None)
+
+    print(f"Loaded {len(all_sessions)} sessions from {data_path}")
+
+    # 3. Incremental Ingestion & Evaluation
+    CHECKPOINTS = [100, 200, 300, 500]
+
+    # If a limit is set, we might not reach all checkpoints, but we still use them.
+    # If limit is smaller than a checkpoint, we just stop there.
+
+    current_checkpoint_idx = 0
+    total_msgs_ingested = 0
+
+    # Track which dia_ids (message IDs) we have processed to filter valid QAs
+    processed_dia_ids = set()
+
+    # Stats accumulators
+    total_original_facts = 0
+    total_unique_facts = 0
+    total_conflicts_detected = 0
+
+    results_by_checkpoint = []
 
     start_time = time.time()
-    system = MemorySystem()
 
-    # Generate messages across topics
-    topics = ["career", "health", "hobbies", "food", "travel"]
-    messages_per_topic = message_count // len(topics)
+    # We iterate session by session
+    for session_idx, session in enumerate(all_sessions):
+        msgs = session["messages"]
+        timestamp = session["timestamp"]
 
-    total_messages = 0
-    memcells_created = 0
-    scenes_created = 0
-    conflicts_detected = 0
-    original_facts_count = 0
-    unique_facts_count = 0
+        # Ingest this session
+        print(f"Ingesting Session {session_idx + 1} ({len(msgs)} msgs)...", end="\r")
 
-    for topic in topics:
-        for i in range(messages_per_topic):
-            # Add some foresight conversations occasionally
-            if random.random() < 0.1:
-                conv = generate_foresight_conversation(topic)
-            else:
-                conv = generate_synthetic_conversation(topic, num_messages=3)
+        # Update system
+        result = system.add_conversation(msgs, timestamp=timestamp)
 
-            result = system.add_conversation(conv)
+        # Update stats
+        total_original_facts += result.get("original_facts_count", 0)
+        total_unique_facts += result.get("unique_facts_count", 0)
+        total_conflicts_detected += result.get("conflicts_detected", 0)
 
-            total_messages += len(conv)
-            memcells_created += 1
-            scenes_created += result.get("scene_id", "").startswith("scene_") and 1 or 0
-            conflicts_detected += result.get("conflicts_detected", 0)
-            original_facts_count += result.get("original_facts_count", 0)
-            unique_facts_count += result.get("unique_facts_count", 0)
+        total_msgs_ingested += len(msgs)
 
-    # Let system settle
-    time.sleep(0.1)
+        while (
+            current_checkpoint_idx < len(CHECKPOINTS)
+            and total_msgs_ingested >= CHECKPOINTS[current_checkpoint_idx]
+        ):
+            checkpoint_target = CHECKPOINTS[current_checkpoint_idx]
 
-    # Test retrieval
-    test_queries = [
-        "Where does the user work?",
-        "What are the user's health habits?",
-        "What hobbies does the user have?",
-        "Is the user traveling anywhere?",
-    ]
+            # PERFORM SNAPSHOT EVALUATION
+            print(
+                f"\n\n>>> REACHED CHECKPOINT: {total_msgs_ingested} messages (Target: {checkpoint_target})"
+            )
 
-    retrieval_results = []
-    for query in test_queries:
-        query_start = time.time()
-        result = system.retrieve(query)
-        query_latency_ms = (time.time() - query_start) * 1000
+            # Snapshot Stats
+            dedup_rate = 0.0
+            if total_original_facts > 0:
+                dedup_rate = (1 - (total_unique_facts / total_original_facts)) * 100
 
-        # Extract relevance scores from retrieved memcells
-        relevance_scores = [m.get("score", 0) for m in result.get("memcells", [])]
+            sys_stats = system.get_memory_stats()
 
-        retrieval_results.append(
-            {
-                "query": query,
-                "memcells_retrieved": len(result.get("memcells", [])),
-                "retrieval_time_ms": query_latency_ms,
-                "relevance_scores": relevance_scores,
-                "avg_relevance_score": sum(relevance_scores) / len(relevance_scores)
-                if relevance_scores
-                else 0,
+            # Snapshot Retrieval Performance
+            print("Running Snapshot Retrieval Evaluation...")
+            checkpoint_latencies = []
+            checkpoint_correct = 0
+            checkpoint_eval_count = 0
+            checkpoint_qa_results = []
+
+            _, valid_qa_pairs = extract_locomo_sessions(
+                data, limit_messages=total_msgs_ingested
+            )
+
+            print(f"Evaluating on {len(valid_qa_pairs)} valid QA pairs...")
+
+            for i, qa in enumerate(valid_qa_pairs):
+                print(f"Evaluating QA {i + 1}/{len(valid_qa_pairs)}...", end="\r")
+                q_text = qa["question"]
+                gold = str(qa.get("answer", "N/A"))
+
+                t0 = time.time()
+                retrieval = system.retrieve(q_text)
+                t1 = time.time()
+                lat_ms = (t1 - t0) * 1000
+                checkpoint_latencies.append(lat_ms)
+
+                context = retrieval.get("composed_context", "")
+
+                # LLM Verify
+                verify_prompt = f"""Question: {q_text}
+Golden Answer: {gold}
+Retrieved Context: {context}
+Does the retrieved context contain the information necessary to answer the question matching the golden answer? 
+Answer JSON: {{"match": true/false}}"""
+                try:
+                    check = llm.complete_json(
+                        [{"role": "user", "content": verify_prompt}]
+                    )
+                    is_match = check.get("match", False)
+                except:
+                    is_match = False
+
+                if is_match:
+                    checkpoint_correct += 1
+                checkpoint_eval_count += 1
+
+                checkpoint_qa_results.append(
+                    {"question": q_text, "match": is_match, "latency_ms": lat_ms}
+                )
+            print()  # Clear progress line
+
+            # Checkpoint Metrics
+            import statistics
+
+            avg_lat = (
+                statistics.mean(checkpoint_latencies) if checkpoint_latencies else 0
+            )
+            p90_lat = (
+                statistics.quantiles(checkpoint_latencies, n=10)[8]
+                if len(checkpoint_latencies) >= 2
+                else avg_lat
+            )
+            accuracy = (
+                (checkpoint_correct / checkpoint_eval_count * 100)
+                if checkpoint_eval_count
+                else 0
+            )
+
+            snapshot = {
+                "message_count": total_msgs_ingested,
+                "timestamp": now_utc().isoformat(),
+                "metrics": {
+                    "memcells": sys_stats.get("memcell_count", 0),
+                    "scenes": sys_stats.get("memscene_count", 0),
+                    "conflicts": sys_stats.get("conflict_count", 0),
+                    "dedup_rate": dedup_rate,
+                    "retrieval_accuracy": accuracy,
+                    "valid_qa_count": checkpoint_eval_count,
+                    "latency_p50": avg_lat,
+                    "latency_p90": p90_lat,
+                    "latency_avg": avg_lat,
+                },
+                "qa_results": checkpoint_qa_results,
             }
-        )
+            results_by_checkpoint.append(snapshot)
 
-    retrieval_time = sum(r["retrieval_time_ms"] for r in retrieval_results) / 1000
+            # Print Summary Table for this Checkpoint
+            print("-" * 40)
+            print(f"SNAPSHOT @ {total_msgs_ingested} MSGS")
+            print("-" * 40)
+            print(f"MemCells    : {snapshot['metrics']['memcells']}")
+            print(f"Scenes      : {snapshot['metrics']['scenes']}")
+            print(f"Conflicts   : {snapshot['metrics']['conflicts']}")
+            print(f"Dedup Rate  : {dedup_rate:.1f}%")
+            print(
+                f"Accuracy    : {accuracy:.1f}% ({checkpoint_correct}/{checkpoint_eval_count})"
+            )
+            print(f"Latency     : Avg={avg_lat:.0f}ms, P90={p90_lat:.0f}ms")
+            print("-" * 40)
 
-    # Get final stats
-    stats = system.get_memory_stats()
+            current_checkpoint_idx += 1
 
-    elapsed_time = time.time() - start_time
+        # Global limit break
+        if limit_messages and total_msgs_ingested >= limit_messages:
+            break
 
-    # Calculate deduplication rate
-    deduplication_rate = (
-        (original_facts_count - unique_facts_count) / original_facts_count
-        if original_facts_count > 0
-        else 0
-    )
+    print(f"\n\nEvaluation Complete. Processed {total_msgs_ingested} messages.")
 
-    return {
-        "message_count": message_count,
-        "total_messages_processed": total_messages,
-        "memcells_created": stats["memcell_count"],
-        "memscenes_created": stats["memscene_count"],
-        "conflicts_detected": stats["conflict_count"],
-        "original_facts_count": original_facts_count,
-        "unique_facts_count": unique_facts_count,
-        "deduplication_rate": deduplication_rate,
-        "elapsed_time_seconds": elapsed_time,
-        "retrieval_time_seconds": retrieval_time,
-        "throughput_messages_per_second": total_messages / elapsed_time
-        if elapsed_time > 0
-        else 0,
-        "retrieval_results": retrieval_results,
-        "scenes_by_theme": system.get_scenes_by_theme(),
+    # Save Results
+    final_output_file = output_file or f"scale_eval_results_{int(time.time())}.json"
+
+    output_data = {
+        "config": {
+            "dataset": data_path,
+            "provider": provider,
+            "model": "gpt-4o-mini",
+            "checkpoints_target": CHECKPOINTS,
+        },
+        "checkpoints": results_by_checkpoint,
     }
 
-
-def print_scale_report(report: Dict[str, Any]) -> None:
-    """Print a scale test report."""
-    print(f"\n{'=' * 60}")
-    print(f"SCALE TEST RESULTS: {report['message_count']} messages")
-    print(f"{'=' * 60}")
-
-    print("\nMemory Statistics:")
-    print(f"  MemCells created: {report['memcells_created']}")
-    print(f"  MemScenes created: {report['memscenes_created']}")
-    print(f"  Conflicts detected: {report['conflicts_detected']}")
-
-    print("\nDeduplication:")
-    print(f"  Original facts: {report['original_facts_count']}")
-    print(f"  Unique facts: {report['unique_facts_count']}")
-    print(f"  Deduplication rate: {report['deduplication_rate'] * 100:.1f}%")
-
-    print("\nPerformance:")
-    print(f"  Total time: {report['elapsed_time_seconds']:.2f}s")
-    print(f"  Throughput: {report['throughput_messages_per_second']:.1f} messages/sec")
-
-    print("\nRetrieval Quality:")
-    for result in report["retrieval_results"]:
-        avg_score = result.get("avg_relevance_score", 0)
-        scores = result.get("relevance_scores", [])
-        print(
-            f"  '{result['query']}': {result['memcells_retrieved']} memcells, "
-            f"latency: {result['retrieval_time_ms']:.1f}ms, "
-            f"avg relevance: {avg_score:.3f}"
-        )
-        if scores:
-            print(f"    Relevance scores: {[f'{s:.3f}' for s in scores[:5]]}")
-
-    print("\nScene Distribution:")
-    for theme, count in sorted(report["scenes_by_theme"].items()):
-        print(f"  {theme}: {count} scenes")
-
-
-def main():
-    """Run scale evaluations at multiple message counts."""
-    print("\n" + "=" * 60)
-    print("  MEMORY SYSTEM SCALE EVALUATION")
-    print("=" * 60)
-
-    # Message counts to test
-    test_counts = [100, 200, 300, 500]
-
-    reports = []
-
-    for count in test_counts:
-        try:
-            report = run_scale_test(count)
-            reports.append(report)
-            print_scale_report(report)
-        except Exception as e:
-            print(f"Error at {count} messages: {e}")
-            import traceback
-
-            traceback.print_exc()
-
-    # Summary
-    print("\n" + "=" * 60)
-    print("  SUMMARY")
-    print("=" * 60)
-
-    print(
-        f"\n{'Messages':<12} {'MemCells':<10} {'Scenes':<10} {'Conflicts':<12} {'Time (s)':<12}"
-    )
-    print("-" * 60)
-    for report in reports:
-        print(
-            f"{report['message_count']:<12} "
-            f"{report['memcells_created']:<10} "
-            f"{report['memscenes_created']:<10} "
-            f"{report['conflicts_detected']:<12} "
-            f"{report['elapsed_time_seconds']:<12.2f}"
-        )
-
-    print("\nEvaluation complete!")
+    with open(final_output_file, "w") as f:
+        json.dump(output_data, f, indent=2)
+    print(f"Full results saved to {final_output_file}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--locomo", action="store_true", help="Run Locomo evaluation")
+    parser.add_argument(
+        "--path", default="data/locomo10.json", help="Path to Locomo data"
+    )
+    parser.add_argument("--limit", type=int, help="Limit number of messages")
+    parser.add_argument("--provider", default="openai", help="LLM provider")
+    parser.add_argument("--output", help="Path to save results JSON")
+    args = parser.parse_args()
+
+    if args.locomo:
+        run_locomo_eval(args.path, args.limit, args.provider, args.output)
+    else:
+        # Legacy/Synthetic mode (kept for compatibility or default run)
+        print("Please use --locomo flag to run the Locomo evaluation.")

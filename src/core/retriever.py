@@ -62,14 +62,15 @@ class MemoryRetriever:
         include_foresight: bool = True,
     ) -> Dict[str, Any]:
         """
-        Main retrieval pipeline.
+        Main retrieval pipeline (MemScene-Guided).
 
         Implements reconstructive recollection:
-        1. Select relevant MemScenes
-        2. Retrieve and re-rank MemCells
-        3. Filter expired foresight
-        4. Check sufficiency and rewrite if needed
-        5. Return composed context
+        1. Find relevant MemCells (Global Search)
+        2. Identify & Rank MemScenes (Scene Selection)
+        3. Pool & Re-rank Episodes from Scenes (Context Expansion)
+        4. Filter expired foresight
+        5. Check sufficiency (Agentic Loop)
+        6. Return composed context
 
         Args:
             query: User query
@@ -86,9 +87,8 @@ class MemoryRetriever:
         scene_top_k = scene_top_k or self.default_scene_top_k
         episode_top_k = episode_top_k or self.default_episode_top_k
 
-        # Track retrieval rounds for agentic loop
         round_num = 0
-        all_retrieved: List[Tuple[str, float]] = []
+        all_retrieved_queries: List[str] = [query]
         final_context = {
             "query": query,
             "query_time": query_time.isoformat(),
@@ -100,79 +100,79 @@ class MemoryRetriever:
 
         while round_num < self.max_retrieval_rounds:
             round_num += 1
+            search_query = all_retrieved_queries[-1]
 
-            # Step 1: Search for relevant MemCells
-            search_query = query
-            if round_num > 1 and all_retrieved:
-                # Use rewritten query from previous round
-                search_query = all_retrieved[0][0] if all_retrieved else query
+            # Step 1: Global Search for Signal (High Recall)
+            # Retrieve more candidates to find relevant scenes
+            # We fetch 5x the desired episodes to get good scene candidates
+            global_candidates = self.index.search_hybrid(
+                search_query, top_k=max(50, episode_top_k * 5)
+            )
 
-            retrieved = self.index.search_hybrid(search_query, top_k=episode_top_k * 2)
-            all_retrieved.extend(retrieved)
+            # Step 2: Select MemScenes based on candidates
+            selected_scenes = self.select_memscenes_from_candidates(
+                global_candidates, top_k=scene_top_k
+            )
 
-            # Deduplicate by event_id
-            seen = set()
-            unique_retrieved = []
-            for event_id, score in all_retrieved:
-                if event_id not in seen:
-                    seen.add(event_id)
-                    unique_retrieved.append((event_id, score))
+            # Step 3: Pool Episodes from Scenes and Re-rank
+            # Fetch ALL episodes from the selected scenes to provide full context
+            pooled_memcells = self._pool_memcells_from_scenes(selected_scenes)
 
-            # Get MemCell details
-            memcells = []
-            for event_id, score in unique_retrieved[:episode_top_k]:
-                memcell = self.store.get_memcell(event_id)
-                if memcell:
-                    memcells.append(
-                        {
-                            "event_id": event_id,
-                            "score": score,
-                            "episode": memcell.episode,
-                            "atomic_facts": memcell.atomic_facts,
-                            "timestamp": memcell.timestamp.isoformat(),
-                        }
-                    )
+            # Re-rank pooled cells against the query
+            reranked_memcells = self._rerank_memcells(pooled_memcells, search_query)
 
-            # Step 2: Filter valid foresight
+            # Select top K
+            top_memcells = reranked_memcells[:episode_top_k]
+
+            # Format for context
+            formatted_memcells = [
+                {
+                    "event_id": m.event_id,
+                    "score": getattr(m, "relevance_score", 0.0),
+                    "episode": m.episode,
+                    "atomic_facts": m.atomic_facts,
+                    "timestamp": m.timestamp.isoformat(),
+                }
+                for m in top_memcells
+            ]
+
+            # Step 4: Filter Foresight
+            # We check foresight from ALL pooled memcells or just top K?
+            # Paper suggests filtering relevant foresight. We'll use Top K for precision.
             valid_foresight = []
             if include_foresight:
-                for memcell in memcells:
-                    event_id = memcell["event_id"]
-                    full_memcell = self.store.get_memcell(event_id)
-                    if full_memcell:
-                        for item in full_memcell.foresight:
-                            if item.is_valid_at(query_time):
-                                valid_foresight.append(
-                                    {
-                                        "description": item.description,
-                                        "confidence": item.confidence,
-                                        "source_event": event_id,
-                                    }
-                                )
+                for m in top_memcells:
+                    for item in m.foresight:
+                        if item.is_valid_at(query_time):
+                            valid_foresight.append(
+                                {
+                                    "description": item.description,
+                                    "confidence": item.confidence,
+                                    "source_event": m.event_id,
+                                }
+                            )
 
-            # Step 3: Check sufficiency
-            context_text = self._format_context_for_check(memcells, valid_foresight)
+            # Step 5: Sufficiency Check
+            context_text = self._format_context_for_check(
+                formatted_memcells, valid_foresight
+            )
             is_sufficient, reasoning = self._check_sufficiency(query, context_text)
 
-            final_context["memcells"] = memcells
+            final_context["memcells"] = formatted_memcells
             final_context["foresight"] = valid_foresight
             final_context["retrieval_rounds"] = round_num
 
             if is_sufficient or round_num >= self.max_retrieval_rounds:
                 break
 
-            # Step 4: Rewrite query if insufficient
+            # Step 6: Rewrite query if insufficient
             rewritten_query = self._rewrite_query(
                 query,
                 reasoning,
                 valid_foresight,
-                memcells,
+                formatted_memcells,
             )
-            # Augment with new results instead of replacing
-            new_results = self.index.search_hybrid(
-                rewritten_query, top_k=episode_top_k * 2
-            )
-            all_retrieved.extend(new_results)
+            all_retrieved_queries.append(rewritten_query)
 
         # Add user profile if requested
         if include_profile:
@@ -183,76 +183,94 @@ class MemoryRetriever:
                     "implicit_traits": profile.implicit_traits,
                 }
 
-        # Generate final composed context
         final_context["composed_context"] = self._compose_context(
             final_context["memcells"],
             final_context.get("foresight", []),
             final_context.get("profile"),
         )
-
         return final_context
 
-    def select_memscenes(
+    def select_memscenes_from_candidates(
         self,
-        query: str,
-        scene_top_k: int = 10,
-    ) -> List[Tuple[str, float]]:
+        candidates: List[Tuple[str, float]],
+        top_k: int = 10,
+    ) -> List[Any]:
         """
-        Select relevant MemScenes for a query.
+        Select MemScenes based on global memcell candidates.
 
-        Scores each scene by the max relevance of its constituent MemCells.
+        Score(Scene) = Max(Score(MemCell) for MemCell in Scene)
 
         Args:
-            query: Search query
-            scene_top_k: Number of scenes to select
+            candidates: List of (event_id, score) tuples
+            top_k: Number of scenes to return
 
         Returns:
-            List of (scene_id, score) tuples
+            List of MemScene objects
         """
+        # Map event_id -> score
+        candidate_scores = {eid: score for eid, score in candidates}
+
         scenes = self.store.get_all_memscenes()
-        if not scenes:
-            return []
-
         scene_scores = []
-        for scene in scenes:
-            # Get MemCells in this scene
-            memcells = self.store.get_memcells_by_scene(scene.scene_id)
-            if not memcells:
-                continue
 
-            # Calculate max relevance (not average - want at least one relevant)
+        for scene in scenes:
             max_score = 0.0
-            for memcell in memcells:
-                # Use hybrid search on the episode
-                results = self.index.search_hybrid(query, top_k=1)
-                for event_id, score in results:
-                    if event_id == memcell.event_id:
-                        max_score = max(max_score, score)
-                        break
+            # Check if any of the scene's memcells are in the candidates
+            # Intersection check is faster for large scenes
+            scene_mem_ids = set(scene.memcell_ids)
+            intersection = scene_mem_ids.intersection(candidate_scores.keys())
+
+            if intersection:
+                max_score = max(candidate_scores[mid] for mid in intersection)
 
             if max_score > 0:
-                scene_scores.append((scene.scene_id, max_score))
+                scene_scores.append((scene, max_score))
 
-        # Sort by score and return top-k
+        # Sort desc by score
         scene_scores.sort(key=lambda x: x[1], reverse=True)
-        return scene_scores[:scene_top_k]
+        return [s for s, score in scene_scores[:top_k]]
 
-    def filter_foresight(
-        self,
-        foresight_items: List[ForesightItem],
-        query_time: datetime,
-    ) -> List[ForesightItem]:
+    def _pool_memcells_from_scenes(self, scenes: List[Any]) -> List[Any]:
+        """Fetch all MemCells from the given scenes."""
+        all_ids = set()
+        for s in scenes:
+            all_ids.update(s.memcell_ids)
+
+        if not all_ids:
+            return []
+
+        return self.store.get_memcells_by_ids(list(all_ids))
+
+    def _rerank_memcells(self, memcells: List[Any], query: str) -> List[Any]:
         """
-        Filter foresight items to only those valid at query_time.
+        Re-rank MemCells against the query.
 
-        Args:
-            foresight_items: All foresight items
-            query_time: Time to check validity
-
-        Returns:
-            Only valid foresight items
+        Uses EmbeddingService similarity if available.
         """
-        return [f for f in foresight_items if f.is_valid_at(query_time)]
+        if not memcells or not self.embeddings:
+            # Fallback: Just return as is (random order effectively if not sorted)
+            return memcells
+
+        # Get query embedding
+        query_embedding = self.embeddings.embed(query)
+
+        scored = []
+        for m in memcells:
+            score = 0.0
+            if m.embedding:
+                # Cosine similarity (assuming normalized vectors)
+                score = self.embeddings.similarity(query_embedding, m.embedding)
+            else:
+                # If no embedding, compute it now (slow path)
+                # or skip. For now, we skip or set 0.
+                pass
+
+            # Attach score for downstream usage
+            m.relevance_score = score
+            scored.append(m)
+
+        scored.sort(key=lambda x: x.relevance_score, reverse=True)
+        return scored
 
     def _check_sufficiency(
         self,

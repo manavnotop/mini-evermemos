@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from ..models import UserProfile
 from ..storage import MemoryStore, SearchIndex
-from ..utils import EmbeddingService, LLMProvider, now_utc
+from ..utils import EmbeddingService, LLMProvider, MockEmbeddings, MockProvider, now_utc
 from .consolidator import MemSceneConsolidator
 from .extractor import MemCellExtractor
 from .retriever import MemoryRetriever
@@ -52,15 +52,11 @@ class MemorySystem:
 
         # Create providers if not provided (use mocks for testing)
         if llm_provider is None:
-            from ..utils import MockProvider
-
             self.llm = MockProvider()
         else:
             self.llm = llm_provider
 
         if embedding_service is None:
-            from ..utils import MockEmbeddings
-
             self.embeddings = MockEmbeddings(dim=384)
         else:
             self.embeddings = embedding_service
@@ -94,7 +90,7 @@ class MemorySystem:
                 )
 
         else:
-            mongo_uri = "mongodb://localhost:27017"  # Default for production
+            mongo_uri = "mongodb://localhost:27017"
             if "mongodb://" in storage_dir or "mongodb+srv://" in storage_dir:
                 mongo_uri = storage_dir
 
