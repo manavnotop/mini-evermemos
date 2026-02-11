@@ -146,7 +146,7 @@ class MongoStorageClient:
 
     def get_unresolved_conflicts(self) -> List[ConflictRecord]:
         """Retrieve all unresolved conflicts."""
-        cursor = self.conflicts.find({"is_resolved": False})
+        cursor = self.conflicts.find({"resolution": None})
         return [
             ConflictRecord.from_dict({k: v for k, v in doc.items() if k != "_id"})
             for doc in cursor

@@ -4,9 +4,13 @@ import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-from ..models import ForesightItem
 from ..storage import MemoryStore, SearchIndex
 from ..utils import EmbeddingService, LLMProvider, now_utc
+from .constants import (
+    CONTEXT_LIMITS,
+    LLM_TEMPERATURES,
+    SEARCH_DEFAULTS,
+)
 
 
 class MemoryRetriever:
@@ -27,9 +31,9 @@ class MemoryRetriever:
         embedding_service: EmbeddingService,
         memory_store: MemoryStore,
         search_index: SearchIndex,
-        default_scene_top_k: int = 10,
-        default_episode_top_k: int = 10,
-        max_retrieval_rounds: int = 2,
+        default_scene_top_k: int = SEARCH_DEFAULTS["scene_top_k"],
+        default_episode_top_k: int = SEARCH_DEFAULTS["episode_top_k"],
+        max_retrieval_rounds: int = SEARCH_DEFAULTS["max_retrieval_rounds"],
     ):
         """
         Initialize the retriever.
@@ -56,6 +60,7 @@ class MemoryRetriever:
         self,
         query: str,
         query_time: Optional[datetime] = None,
+        user_id: str = "default",
         scene_top_k: Optional[int] = None,
         episode_top_k: Optional[int] = None,
         include_profile: bool = False,
@@ -75,6 +80,7 @@ class MemoryRetriever:
         Args:
             query: User query
             query_time: Time to use for temporal filtering
+            user_id: User ID for profile lookup
             scene_top_k: Number of scenes to retrieve
             episode_top_k: Number of episodes to retrieve
             include_profile: Include user profile in results
@@ -103,11 +109,16 @@ class MemoryRetriever:
             search_query = all_retrieved_queries[-1]
 
             # Step 1: Global Search for Signal (High Recall)
-            # Retrieve more candidates to find relevant scenes
-            # We fetch 5x the desired episodes to get good scene candidates
+            # Use Reciprocal Rank Fusion (RRF) combining BM25 + vector search
+            # Paper Section 3.5: "hybrid dense+BM25 fusion (RRF)"
             global_candidates = self.index.search_hybrid(
-                search_query, top_k=max(50, episode_top_k * 5)
+                search_query,
+                top_k=max(
+                    50, episode_top_k * SEARCH_DEFAULTS["global_candidates_multiplier"]
+                ),
+                rrf_k=SEARCH_DEFAULTS["rrf_k"],
             )
+            candidate_score_map = {eid: score for eid, score in global_candidates}
 
             # Step 2: Select MemScenes based on candidates
             selected_scenes = self.select_memscenes_from_candidates(
@@ -119,7 +130,11 @@ class MemoryRetriever:
             pooled_memcells = self._pool_memcells_from_scenes(selected_scenes)
 
             # Re-rank pooled cells against the query
-            reranked_memcells = self._rerank_memcells(pooled_memcells, search_query)
+            reranked_memcells = self._rerank_memcells(
+                pooled_memcells,
+                search_query,
+                candidate_scores=candidate_score_map,
+            )
 
             # Select top K
             top_memcells = reranked_memcells[:episode_top_k]
@@ -130,7 +145,7 @@ class MemoryRetriever:
                     "event_id": m.event_id,
                     "score": getattr(m, "relevance_score", 0.0),
                     "episode": m.episode,
-                    "atomic_facts": m.atomic_facts,
+                    "atomic_facts": self._normalize_atomic_facts(m.atomic_facts),
                     "timestamp": m.timestamp.isoformat(),
                 }
                 for m in top_memcells
@@ -156,7 +171,9 @@ class MemoryRetriever:
             context_text = self._format_context_for_check(
                 formatted_memcells, valid_foresight
             )
-            is_sufficient, reasoning = self._check_sufficiency(query, context_text)
+            is_sufficient, reasoning, missing_information = self._check_sufficiency(
+                query, context_text
+            )
 
             final_context["memcells"] = formatted_memcells
             final_context["foresight"] = valid_foresight
@@ -169,14 +186,21 @@ class MemoryRetriever:
             rewritten_query = self._rewrite_query(
                 query,
                 reasoning,
+                missing_information,
                 valid_foresight,
                 formatted_memcells,
             )
-            all_retrieved_queries.append(rewritten_query)
+
+            # Only append if we got a new, different query
+            if rewritten_query and rewritten_query != all_retrieved_queries[-1]:
+                all_retrieved_queries.append(rewritten_query)
+            else:
+                # No improvement possible, exit loop
+                break
 
         # Add user profile if requested
         if include_profile:
-            profile = self.store.get_user_profile()
+            profile = self.store.get_user_profile(user_id)
             if profile:
                 final_context["profile"] = {
                     "explicit_facts": profile.explicit_facts,
@@ -241,42 +265,55 @@ class MemoryRetriever:
 
         return self.store.get_memcells_by_ids(list(all_ids))
 
-    def _rerank_memcells(self, memcells: List[Any], query: str) -> List[Any]:
+    def _rerank_memcells(
+        self,
+        memcells: List[Any],
+        query: str,
+        candidate_scores: Optional[Dict[str, float]] = None,
+    ) -> List[Any]:
         """
         Re-rank MemCells against the query.
 
-        Uses EmbeddingService similarity if available.
+        Uses embedding similarity when available; otherwise falls back to
+        global candidate scores and timestamp for deterministic ordering.
         """
-        if not memcells or not self.embeddings:
-            # Fallback: Just return as is (random order effectively if not sorted)
+        if not memcells:
             return memcells
 
-        # Get query embedding
-        query_embedding = self.embeddings.embed(query)
+        candidate_scores = candidate_scores or {}
+        query_embedding = None
+        if self.embeddings:
+            query_embedding = self.embeddings.embed(query)
 
         scored = []
         for m in memcells:
-            score = 0.0
-            if m.embedding:
+            semantic_score = None
+            if query_embedding is not None and m.embedding:
                 # Cosine similarity (assuming normalized vectors)
-                score = self.embeddings.similarity(query_embedding, m.embedding)
-            else:
-                # If no embedding, compute it now (slow path)
-                # or skip. For now, we skip or set 0.
-                pass
+                semantic_score = self.embeddings.similarity(query_embedding, m.embedding)
 
-            # Attach score for downstream usage
-            m.relevance_score = score
-            scored.append(m)
+            fallback_score = candidate_scores.get(m.event_id, 0.0)
+            final_score = semantic_score if semantic_score is not None else fallback_score
+            m.relevance_score = final_score
+            timestamp = getattr(m, "timestamp", datetime.min)
+            scored.append((m, semantic_score, fallback_score, timestamp))
 
-        scored.sort(key=lambda x: x.relevance_score, reverse=True)
-        return scored
+        scored.sort(
+            key=lambda item: (
+                item[1] if item[1] is not None else float("-inf"),
+                item[2],
+                item[3],
+                item[0].event_id,
+            ),
+            reverse=True,
+        )
+        return [item[0] for item in scored]
 
     def _check_sufficiency(
         self,
         query: str,
         context: str,
-    ) -> Tuple[bool, str]:
+    ) -> Tuple[bool, str, List[str]]:
         """
         Check if retrieved context is sufficient to answer the query.
 
@@ -285,7 +322,7 @@ class MemoryRetriever:
             context: Formatted retrieved context
 
         Returns:
-            Tuple of (is_sufficient, reasoning)
+            Tuple of (is_sufficient, reasoning, missing_information)
         """
         prompt = f"""You are an expert at evaluating retrieval quality.
 
@@ -293,7 +330,7 @@ User Query:
 {query}
 
 Retrieved Context:
-{context[:3000]}  # Limit context length
+{context[: CONTEXT_LIMITS["max_context_length"]]}  # Limit context length
 
 ## Instructions:
 Determine if the retrieved context is SUFFICIENT to answer the user's query.
@@ -311,22 +348,32 @@ Determine if the retrieved context is SUFFICIENT to answer the user's query.
         try:
             response = self.llm.complete_json(
                 [{"role": "user", "content": prompt}],
-                temperature=0.0,
+                temperature=LLM_TEMPERATURES["default"],
             )
 
-            is_sufficient = response.get("is_sufficient", True)
-            reasoning = response.get("reasoning", "")
+            is_sufficient_raw = response.get("is_sufficient")
+            is_sufficient = (
+                is_sufficient_raw
+                if isinstance(is_sufficient_raw, bool)
+                else False
+            )
+            reasoning = str(response.get("reasoning", ""))
+            missing_information = response.get("missing_information", [])
+            if not isinstance(missing_information, list):
+                missing_information = []
+            missing_information = [str(item) for item in missing_information]
 
-            return is_sufficient, reasoning
+            return is_sufficient, reasoning, missing_information
 
-        except (json.JSONDecodeError, KeyError):
-            # Default to sufficient on error
-            return True, "Error in sufficiency check"
+        except Exception:
+            # Default to insufficient on error so rewrite loop can recover.
+            return False, "Error in sufficiency check", []
 
     def _rewrite_query(
         self,
         original_query: str,
         reasoning: str,
+        missing_information: List[str],
         foresight: List[Dict],
         memcells: List[Dict],
     ) -> str:
@@ -336,6 +383,7 @@ Determine if the retrieved context is SUFFICIENT to answer the user's query.
         Args:
             original_query: Original user query
             reasoning: Reasoning from sufficiency check
+            missing_information: Structured missing info from verifier
             foresight: Valid foresight items
             memcells: Retrieved MemCells
 
@@ -351,11 +399,14 @@ Original Query:
 Retrieval Reasoning:
 {reasoning}
 
+Missing Information:
+{chr(10).join(f"- {item}" for item in missing_information) if missing_information else "- (none provided)"}
+
 Valid Foresight:
 {chr(10).join(f"- {f['description']}" for f in foresight)}
 
 Retrieved Context Summary:
-{chr(10).join(f"- {m['episode'][:100]}..." for m in memcells[:3])}
+{chr(10).join(f"- {m['episode'][:100]}..." for m in memcells[: CONTEXT_LIMITS["max_memcells_in_summary"]])}
 
 ## Task:
 Generate 2-3 reformulated queries that would help find the MISSING information.
@@ -377,7 +428,7 @@ Generate 2-3 reformulated queries that would help find the MISSING information.
         try:
             response = self.llm.complete_json(
                 [{"role": "user", "content": prompt}],
-                temperature=0.0,
+                temperature=LLM_TEMPERATURES["default"],
             )
 
             queries = response.get("queries", [])
@@ -398,9 +449,10 @@ Generate 2-3 reformulated queries that would help find the MISSING information.
         lines = ["=== Retrieved MemCells ==="]
 
         for m in memcells:
+            facts = self._normalize_atomic_facts(m.get("atomic_facts", []))
             lines.append(f"[{m['timestamp']}]")
             lines.append(f"Episode: {m['episode']}")
-            lines.append(f"Facts: {', '.join(m['atomic_facts'][:5])}")
+            lines.append(f"Facts: {', '.join(facts[: CONTEXT_LIMITS['max_facts_per_memcell']])}")
             lines.append("")
 
         if foresight:
@@ -434,9 +486,10 @@ Generate 2-3 reformulated queries that would help find the MISSING information.
 
         lines.append("=== Relevant Memories ===")
         for m in memcells:
+            facts = self._normalize_atomic_facts(m.get("atomic_facts", []))
             lines.append(f"[{m['timestamp']}] {m['episode']}")
-            if m["atomic_facts"]:
-                lines.append(f"  Facts: {', '.join(m['atomic_facts'])}")
+            if facts:
+                lines.append(f"  Facts: {', '.join(facts)}")
 
         if foresight:
             lines.append("")
@@ -445,6 +498,28 @@ Generate 2-3 reformulated queries that would help find the MISSING information.
                 lines.append(f"- {f['description']}")
 
         return "\n".join(lines)
+
+    def _normalize_atomic_facts(self, atomic_facts: Any) -> List[str]:
+        """Normalize AtomicFact/list variants into a plain string list."""
+        if not atomic_facts:
+            return []
+
+        normalized = []
+        for fact in atomic_facts:
+            if isinstance(fact, str):
+                text = fact
+            elif hasattr(fact, "text"):
+                text = getattr(fact, "text")
+            elif isinstance(fact, dict):
+                text = fact.get("text", fact.get("fact", ""))
+            else:
+                text = str(fact)
+
+            text = str(text).strip()
+            if text:
+                normalized.append(text)
+
+        return normalized
 
     def get_retrieval_stats(self) -> Dict[str, Any]:
         """Get retrieval statistics."""

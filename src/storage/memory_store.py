@@ -66,6 +66,10 @@ class MemoryStore:
         if self._milvus_available and memcell.embedding:
             self.milvus.add_memcell_embedding(memcell, memcell.embedding)
 
+    def upsert_memcell(self, memcell: MemCell) -> None:
+        """Upsert a MemCell to storage (alias for add_memcell)."""
+        self.add_memcell(memcell)
+
     def get_memcell(self, event_id: str) -> Optional[MemCell]:
         """Get a MemCell by ID."""
         return self.mongo.get_memcell(event_id)
@@ -107,6 +111,10 @@ class MemoryStore:
 
     def add_conflict(self, conflict: ConflictRecord) -> None:
         """Add a ConflictRecord."""
+        self.mongo.add_conflict(conflict)
+
+    def save_conflict(self, conflict: ConflictRecord) -> None:
+        """Save/update a ConflictRecord."""
         self.mongo.add_conflict(conflict)
 
     def get_conflict(self, conflict_id: str) -> Optional[ConflictRecord]:

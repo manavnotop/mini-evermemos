@@ -55,7 +55,10 @@ class SearchIndex:
         event_id = memcell.event_id
 
         # Add to BM25 index
-        facts = memcell.atomic_facts
+        facts = [
+            fact.text if hasattr(fact, "text") else str(fact)
+            for fact in (memcell.atomic_facts or [])
+        ]
         if facts:
             self._doc_facts[event_id] = facts
             self._bm25_dirty = True

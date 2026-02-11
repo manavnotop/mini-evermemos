@@ -1,10 +1,10 @@
 """Memory System Orchestrator - Ties all three phases together."""
 
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from ..models import UserProfile
+from ..models import ConflictResolution, UserProfile
 from ..storage import MemoryStore, SearchIndex
 from ..utils import EmbeddingService, LLMProvider, MockEmbeddings, MockProvider, now_utc
 from .consolidator import MemSceneConsolidator
@@ -126,10 +126,10 @@ class MemorySystem:
         timestamp: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """
-        Add a conversation to memory.
+        Add a conversation to memory with automatic boundary detection.
 
         Runs the full lifecycle:
-        1. Extract MemCell from messages (Phase I)
+        1. Extract MemCells from messages using semantic boundary detection (Phase I)
         2. Consolidate into MemScene (Phase II)
         3. Detect and log conflicts
         4. Update user profile
@@ -139,34 +139,59 @@ class MemorySystem:
             timestamp: Timestamp for the conversation
 
         Returns:
-            Dict with processing results
+            Dict with processing results (aggregated across all extracted MemCells)
         """
         start_time = time.time()
 
         timestamp = timestamp or now_utc()
 
-        # Phase I: Extract MemCell
-        memcell = self.extractor.create_memcell(messages, timestamp)
+        # Phase I: Extract MemCells using streaming boundary detection
+        # This creates multiple MemCells if semantic boundaries are detected
+        memcells = self.extractor.process_conversation_stream(messages, flush=True)
 
-        # Phase II: Consolidate
-        result = self.consolidator.consolidate(memcell, self.user_id)
+        if not memcells:
+            # Fallback: create at least one MemCell if stream processing returns empty
+            memcells = [self.extractor.create_memcell(messages, timestamp)]
+
+        # Phase II: Consolidate each MemCell
+        results = []
+        for memcell in memcells:
+            # Preserve per-episode timestamps from extractor; only fill missing values.
+            if not isinstance(memcell.timestamp, datetime):
+                memcell.timestamp = timestamp or now_utc()
+            elif memcell.timestamp.tzinfo is None:
+                memcell.timestamp = memcell.timestamp.replace(tzinfo=timezone.utc)
+            result = self.consolidator.consolidate(memcell, self.user_id)
+            results.append(result)
 
         elapsed_ms = (time.time() - start_time) * 1000
 
+        # Aggregate results
+        total_conflicts = sum(r["conflicts_detected"] for r in results)
+        total_original_facts = sum(
+            memcell.metadata.get("original_facts_count", len(memcell.atomic_facts))
+            for memcell in memcells
+        )
+        total_unique_facts = sum(
+            memcell.metadata.get("unique_facts_count", len(memcell.atomic_facts))
+            for memcell in memcells
+        )
+
         return {
-            "memcell_id": memcell.event_id,
-            "scene_id": result["scene_id"],
-            "theme": result["theme"],
-            "conflicts_detected": result["conflicts_detected"],
+            "memcell_count": len(memcells),
+            "memcell_ids": [m.event_id for m in memcells],
+            "scene_ids": list(set(r["scene_id"] for r in results)),
+            "themes": list(set(r["theme"] for r in results)),
+            "conflicts_detected": total_conflicts,
             "processing_time_ms": elapsed_ms,
-            "episode": memcell.episode,
-            "atomic_facts": memcell.atomic_facts,
-            "foresight_count": len(memcell.foresight),
-            "original_facts_count": memcell.metadata.get(
-                "original_facts_count", len(memcell.atomic_facts)
-            ),
-            "unique_facts_count": memcell.metadata.get(
-                "unique_facts_count", len(memcell.atomic_facts)
+            "episodes": [m.episode for m in memcells],
+            "total_atomic_facts": sum(len(m.atomic_facts) for m in memcells),
+            "original_facts_count": total_original_facts,
+            "unique_facts_count": total_unique_facts,
+            "dedup_rate": (
+                (total_original_facts - total_unique_facts) / total_original_facts * 100
+                if total_original_facts > 0
+                else 0
             ),
         }
 
@@ -237,6 +262,7 @@ class MemorySystem:
         return self.retriever.retrieve(
             query=query,
             query_time=query_time,
+            user_id=self.user_id,
             include_profile=include_profile,
             include_foresight=include_foresight,
         )
@@ -291,7 +317,7 @@ class MemorySystem:
     def resolve_conflict(
         self,
         conflict_id: str,
-        resolution: str,
+        resolution: ConflictResolution,
         notes: str = "",
     ) -> bool:
         """
