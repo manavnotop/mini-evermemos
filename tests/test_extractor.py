@@ -1,6 +1,7 @@
 """Tests for MemCell extraction."""
 
 from datetime import datetime, timedelta, timezone
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -132,6 +133,58 @@ def test_conversation_stream_processing(extractor):
     # Should create at least one MemCell
     assert len(memcells) >= 1
     assert all(isinstance(m, MemCell) for m in memcells)
+
+
+def test_extract_episode_falls_back_on_malformed_schema(extractor):
+    """Malformed structured output should not crash extraction."""
+    extractor.llm = MagicMock()
+    extractor.llm.complete_json.return_value = {
+        "episode": "bad payload",
+        "atomic_facts": "not-a-list",
+        "foresight": "not-a-list",
+    }
+
+    result = extractor.extract_episode([{"role": "user", "content": "hello"}])
+
+    assert "episode" in result
+    assert isinstance(result["atomic_facts"], list)
+    assert isinstance(result["foresight"], list)
+
+
+def test_parse_unified_response_handles_missing_foresight_description(extractor):
+    """Foresight items without description should be skipped safely."""
+    response = {
+        "episode": "User mentioned plans.",
+        "atomic_facts": [{"text": "User plans to travel", "confidence": 0.9}],
+        "foresight": [{"start_time": "2025-01-01T10:00:00Z"}],
+    }
+
+    parsed = extractor._parse_unified_response(response, datetime.now(timezone.utc))
+
+    assert parsed["episode"] == "User mentioned plans."
+    assert parsed["foresight"] == []
+
+
+def test_parse_unified_response_accepts_mixed_atomic_fact_shapes(extractor):
+    """Atomic fact parsing should support dict/string/object shapes."""
+    fact_obj = type("FactObj", (), {"text": "Object fact", "confidence": 0.6})()
+    response = {
+        "episode": "Mixed facts episode",
+        "atomic_facts": [
+            {"text": "Dict fact", "confidence": 0.8},
+            "String fact",
+            fact_obj,
+        ],
+        "foresight": [],
+    }
+
+    parsed = extractor._parse_unified_response(response, datetime.now(timezone.utc))
+
+    assert [fact["text"] for fact in parsed["atomic_facts"]] == [
+        "Dict fact",
+        "String fact",
+        "Object fact",
+    ]
 
 
 if __name__ == "__main__":

@@ -154,18 +154,11 @@ class MemoryRetriever:
             # Step 4: Filter Foresight
             # We check foresight from ALL pooled memcells or just top K?
             # Paper suggests filtering relevant foresight. We'll use Top K for precision.
-            valid_foresight = []
-            if include_foresight:
-                for m in top_memcells:
-                    for item in m.foresight:
-                        if item.is_valid_at(query_time):
-                            valid_foresight.append(
-                                {
-                                    "description": item.description,
-                                    "confidence": item.confidence,
-                                    "source_event": m.event_id,
-                                }
-                            )
+            valid_foresight = (
+                self._collect_valid_foresight(top_memcells, query_time)
+                if include_foresight
+                else []
+            )
 
             # Step 5: Sufficiency Check
             context_text = self._format_context_for_check(
@@ -234,18 +227,17 @@ class MemoryRetriever:
         # Map event_id -> score
         candidate_scores = {eid: score for eid, score in candidates}
 
+        if not candidate_scores:
+            return []
+
         scenes = self.store.get_all_memscenes()
         scene_scores = []
 
         for scene in scenes:
-            max_score = 0.0
-            # Check if any of the scene's memcells are in the candidates
-            # Intersection check is faster for large scenes
-            scene_mem_ids = set(scene.memcell_ids)
-            intersection = scene_mem_ids.intersection(candidate_scores.keys())
-
-            if intersection:
-                max_score = max(candidate_scores[mid] for mid in intersection)
+            max_score = max(
+                (candidate_scores.get(memcell_id, 0.0) for memcell_id in scene.memcell_ids),
+                default=0.0,
+            )
 
             if max_score > 0:
                 scene_scores.append((scene, max_score))
@@ -308,6 +300,25 @@ class MemoryRetriever:
             reverse=True,
         )
         return [item[0] for item in scored]
+
+    def _collect_valid_foresight(
+        self,
+        memcells: List[Any],
+        query_time: datetime,
+    ) -> List[Dict[str, Any]]:
+        """Collect foresight items that are valid at query time."""
+        valid_foresight: List[Dict[str, Any]] = []
+        for memcell in memcells:
+            for item in memcell.foresight:
+                if item.is_valid_at(query_time):
+                    valid_foresight.append(
+                        {
+                            "description": item.description,
+                            "confidence": item.confidence,
+                            "source_event": memcell.event_id,
+                        }
+                    )
+        return valid_foresight
 
     def _check_sufficiency(
         self,

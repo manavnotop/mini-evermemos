@@ -4,6 +4,7 @@ import pytest
 
 from src.core import MemorySystem
 from src.models import ConflictRecord
+from src.storage.mongo_client import MongoStorageClient
 
 
 @pytest.fixture
@@ -166,6 +167,27 @@ def test_conflict_resolution_via_system(system):
     assert resolved.is_resolved is True
     assert resolved.resolution == "recency"
     assert resolved.resolved_at is not None
+
+
+def test_mongo_get_unresolved_conflicts_matches_resolution_null():
+    """Mongo unresolved query should use persisted resolution field."""
+
+    class StubConflicts:
+        def __init__(self):
+            self.query = None
+
+        def find(self, query):
+            self.query = query
+            return []
+
+    client = MongoStorageClient.__new__(MongoStorageClient)
+    stub = StubConflicts()
+    client.conflicts = stub
+
+    unresolved = client.get_unresolved_conflicts()
+
+    assert unresolved == []
+    assert stub.query == {"resolution": None}
 
 
 if __name__ == "__main__":

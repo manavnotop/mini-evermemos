@@ -409,11 +409,9 @@ class MemCellExtractor:
                 is_boundary = False
 
             if is_boundary and self._episode_history:
-                # Synthesize and create MemCell from complete history
-                memcell = self.create_memcell(self._episode_history)
-                memcells.append(memcell)
-                self._update_last_episode_embedding(self._episode_history)
-                # Start fresh history with current message
+                finalized = self._finalize_episode_history(reset_history=True)
+                if finalized:
+                    memcells.append(finalized)
                 self._episode_history = [message]
             else:
                 # Accumulate in history
@@ -421,30 +419,39 @@ class MemCellExtractor:
 
             # Force split based on current episode size (not global message count)
             if len(self._episode_history) >= self.max_messages_per_episode:
-                # Force split
-                memcell = self.create_memcell(self._episode_history)
-                memcells.append(memcell)
-                self._update_last_episode_embedding(self._episode_history)
-                self._episode_history = []
+                finalized = self._finalize_episode_history(reset_history=True)
+                if finalized:
+                    memcells.append(finalized)
 
         # Handle flush: process remaining history
         if flush and self._episode_history:
-            memcell = self.create_memcell(self._episode_history)
-            memcells.append(memcell)
-            self._update_last_episode_embedding(self._episode_history)
-            self._episode_history = []
+            finalized = self._finalize_episode_history(reset_history=True)
+            if finalized:
+                memcells.append(finalized)
 
         return memcells
 
     def flush(self) -> List[MemCell]:
         """Flush any pending messages as MemCells."""
         memcells = []
-        if self._episode_history:
-            memcell = self.create_memcell(self._episode_history)
-            memcells.append(memcell)
-            self._update_last_episode_embedding(self._episode_history)
-            self._episode_history = []
+        finalized = self._finalize_episode_history(reset_history=True)
+        if finalized:
+            memcells.append(finalized)
         return memcells
+
+    def _finalize_episode_history(
+        self,
+        reset_history: bool = False,
+    ) -> Optional[MemCell]:
+        """Create a MemCell from pending history and optionally clear the buffer."""
+        if not self._episode_history:
+            return None
+
+        memcell = self.create_memcell(self._episode_history)
+        self._update_last_episode_embedding(self._episode_history)
+        if reset_history:
+            self._episode_history = []
+        return memcell
 
     def _format_episode_history(self, history: List[Dict[str, Any]]) -> str:
         """Format episode history for LLM prompt."""

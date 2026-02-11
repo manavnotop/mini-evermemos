@@ -3,7 +3,7 @@
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from ..models import (
     AtomicFact,
@@ -185,29 +185,16 @@ class MemSceneConsolidator:
         Returns:
             List of detected conflicts
         """
-        # Get existing facts from the current scene, excluding incoming memcell
         existing_facts_by_norm: Dict[str, str] = {}
         fact_sources: Dict[str, List[str]] = {}
         existing_timestamps: Dict[str, str] = {}
-
-        for existing_memcell_id in scene.memcell_ids:
-            if existing_memcell_id == memcell.event_id:
-                continue
-
-            existing = self.store.get_memcell(existing_memcell_id)
-            if not existing or not existing.atomic_facts:
-                continue
-
-            for fact in existing.atomic_facts:
-                fact_text = self._fact_text(fact)
-                normalized = self._normalize_fact(fact_text)
-
-                if normalized not in existing_facts_by_norm:
-                    existing_facts_by_norm[normalized] = fact_text
-                fact_sources.setdefault(normalized, [])
-                if existing_memcell_id not in fact_sources[normalized]:
-                    fact_sources[normalized].append(existing_memcell_id)
-                existing_timestamps[normalized] = existing.timestamp.isoformat()
+        self._collect_existing_facts(
+            scene.memcell_ids,
+            memcell.event_id,
+            existing_facts_by_norm,
+            fact_sources,
+            existing_timestamps,
+        )
 
         # Also check related scenes (same theme or high embedding similarity)
         detection_scope = "scene_only"
@@ -218,27 +205,19 @@ class MemSceneConsolidator:
             )
             if related_scenes:
                 detection_scope = "cross_scene"
-            for related_scene in related_scenes:
-                if related_scene.scene_id == scene.scene_id:
-                    continue  # Skip current scene (already processed)
-
-                for existing_memcell_id in related_scene.memcell_ids:
-                    if existing_memcell_id == memcell.event_id:
-                        continue
-
-                    existing = self.store.get_memcell(existing_memcell_id)
-                    if not existing or not existing.atomic_facts:
-                        continue
-
-                    for fact in existing.atomic_facts:
-                        fact_text = self._fact_text(fact)
-                        normalized = self._normalize_fact(fact_text)
-                        if normalized not in existing_facts_by_norm:
-                            existing_facts_by_norm[normalized] = fact_text
-                        fact_sources.setdefault(normalized, [])
-                        if existing_memcell_id not in fact_sources[normalized]:
-                            fact_sources[normalized].append(existing_memcell_id)
-                        existing_timestamps[normalized] = existing.timestamp.isoformat()
+            related_memcell_ids = [
+                memcell_id
+                for related_scene in related_scenes
+                if related_scene.scene_id != scene.scene_id
+                for memcell_id in related_scene.memcell_ids
+            ]
+            self._collect_existing_facts(
+                related_memcell_ids,
+                memcell.event_id,
+                existing_facts_by_norm,
+                fact_sources,
+                existing_timestamps,
+            )
 
         if not existing_facts_by_norm:
             return []
@@ -306,6 +285,33 @@ class MemSceneConsolidator:
         except (json.JSONDecodeError, KeyError, TypeError, AttributeError) as exc:
             logger.warning("Conflict detection failed for memcell %s: %s", memcell.event_id, exc)
             return []
+
+    def _collect_existing_facts(
+        self,
+        memcell_ids: List[str],
+        incoming_memcell_id: str,
+        existing_facts_by_norm: Dict[str, str],
+        fact_sources: Dict[str, List[str]],
+        existing_timestamps: Dict[str, str],
+    ) -> None:
+        """Collect normalized facts and provenance from a list of memcells."""
+        for existing_memcell_id in memcell_ids:
+            if existing_memcell_id == incoming_memcell_id:
+                continue
+
+            existing = self.store.get_memcell(existing_memcell_id)
+            if not existing or not existing.atomic_facts:
+                continue
+
+            for fact in existing.atomic_facts:
+                fact_text = self._fact_text(fact)
+                normalized = self._normalize_fact(fact_text)
+                if normalized not in existing_facts_by_norm:
+                    existing_facts_by_norm[normalized] = fact_text
+                fact_sources.setdefault(normalized, [])
+                if existing_memcell_id not in fact_sources[normalized]:
+                    fact_sources[normalized].append(existing_memcell_id)
+                existing_timestamps[normalized] = existing.timestamp.isoformat()
 
     def _find_related_scenes(
         self,
