@@ -1,157 +1,225 @@
-# EverMemOS Technical Design Document
+# EverMemOS Technical Design (Updated)
 
-## 1. System Architecture
+## 1. Goal and Paper Alignment
 
-The system implements the **EverMemOS** lifecycle, consisting of three distinct phases: **Trace Formation**, **Semantic Consolidation**, and **Reconstructive Recollection**.
+This system implements the EverMemOS lifecycle from the paper:
 
+`Trace Formation -> Semantic Consolidation -> Reconstructive Recollection`
 
----
+It is designed to solve the task requirements:
 
-## 2. Core Data Structures
+- Extract structured memory units (MemCells) from dialogue.
+- Organize memory into thematic scenes (MemScenes).
+- Detect and resolve contradictions explicitly (no silent overwrite).
+- Apply temporal validity to foresight so expired states are filtered out.
+- Use hybrid retrieval (BM25 + dense embeddings) with an agentic sufficiency loop.
 
-### 2.1 MemCell (Atomic Memory Unit)
-The fundamental unit of storage, designed to be immutable once created (except for metadata updates).
+## 2. End-to-End Architecture
+
+### 2.1 Phase I: Episodic Trace Formation
+
+Input stream is segmented into episodes, then each episode is converted into one MemCell containing:
+
+- `episode`: rewritten third-person summary.
+- `atomic_facts`: structured facts with confidence.
+- `foresight`: time-bounded forward-looking items (`start_time`, `end_time`, `confidence`).
+- `metadata`: entities/topics and dedup stats.
+
+Boundary detection is LLM-first with an embedding drift backstop, plus hard splitting by message limit.
+
+### 2.2 Phase II: Semantic Consolidation
+
+Each MemCell is embedded and assigned to a MemScene:
+
+- Join existing scene if semantic similarity and time-gap constraints pass.
+- Otherwise create a new scene with inferred theme.
+
+Then:
+
+- Conflicts are detected (scene + related-scene scope).
+- Auto-resolution defaults to `recency`.
+- Global fact deduplication runs after conflict detection (conflict facts are protected from dedup removal).
+- Scene summary and user profile are updated.
+
+### 2.3 Phase III: Reconstructive Recollection
+
+Given query `q` at time `t_query`:
+
+1. Global hybrid retrieval over MemCells using RRF (BM25 + dense).
+2. Score scenes by max candidate score among their MemCells.
+3. Pool all MemCells from selected scenes, re-rank, keep top episodes.
+4. Filter foresight by validity interval at `t_query`.
+5. Run sufficiency check; rewrite query and retry (max rounds capped).
+
+## 3. Core Data Structures
+
+### 3.1 MemCell
 
 ```json
 {
-  "event_id": "uuid4",
-  "episode": "User mentioned they are starting a new keto diet today.",
-  "atomic_facts": [
-    "User started keto diet",
-    "User is aiming for low-carb intake"
-  ],
-  "foresight": [
-    {
-      "description": "User on keto diet",
-      "start_time": "2023-10-01T10:00:00Z",
-      "end_time": "2023-11-01T10:00:00Z",
-      "confidence": 0.9
-    }
-  ],
-  "embedding": [0.01, -0.45, ...],
-  "timestamp": "2023-10-01T10:00:00Z"
+  "event_id": "uuid",
+  "scene_id": "uuid",
+  "episode": "User discussed starting antibiotics for two weeks.",
+  "atomic_facts": [{"text": "User is on antibiotics", "confidence": 0.91}],
+  "foresight": [{
+    "description": "User should avoid alcohol during antibiotics",
+    "start_time": "2023-07-01T10:00:00Z",
+    "end_time": "2023-07-15T10:00:00Z",
+    "confidence": 0.88
+  }],
+  "embedding": [0.0, 0.0, "..."],
+  "timestamp": "2023-07-01T10:00:00Z",
+  "metadata": {
+    "original_facts_count": 4,
+    "unique_facts_count": 3,
+    "deduplicated_count": 1
+  }
 }
 ```
 
-### 2.2 MemScene (Thematic Cluster)
-A dynamic cluster representing a "thread" of memory (e.g., "Health", "Career").
+### 3.2 MemScene
 
 ```json
 {
-  "scene_id": "uuid4",
+  "scene_id": "uuid",
   "theme": "health",
-  "summary": "User's ongoing journey with various diets and fitness routines.",
-  "memcell_ids": ["uuid-1", "uuid-2"],
-  "centroid": [0.02, -0.41, ...],
-  "latest_timestamp": "2023-10-05T12:00:00Z"
+  "summary": "Recent episodes about temporary illness and treatment constraints.",
+  "memcell_ids": ["event_1", "event_2"],
+  "centroid": [0.0, 0.0, "..."],
+  "latest_timestamp": "2023-07-05T08:00:00Z"
 }
 ```
 
-### 2.3 UserProfile (Long-term Persona)
-Maintained separately to track explicit facts and implicit traits derived from memory scenes.
+### 3.3 ConflictRecord
 
-```json
-{
-  "user_id": "default",
-  "explicit_facts": {
-    "job": {
-      "value": "Software Engineer",
-      "confidence": 0.95,
-      "source_scenes": ["scene-1"]
-    }
-  },
-  "implicit_traits": [
-    "Prefers morning meetings",
-    "Health-conscious"
-  ],
-  "last_updated": "2023-10-06T09:00:00Z"
-}
-```
+- Captures `old_fact`, `new_fact`, confidence, source MemCell IDs, detection scope, and resolution.
+- Keeps audit trail for explainability/debugging.
 
----
+### 3.4 UserProfile
 
-## 3. Algorithm Implementation Details
+- `explicit_facts`: stable, verifiable fields (job, location, etc.) with history.
+- `implicit_traits`: recurring preferences/behavior traits.
 
-### 3.1 Topic Boundary Detection
-Located in `src/core/extractor.py`.
+## 4. Technical Configuration (Exact)
 
-*   **Logic**: Sliding Window + LLM Check.
-*   **Window**: Buffer of accumulated messages.
-*   **Trigger**:
-    1.  **Semantic Check**: `BOUNDARY_DETECTION_PROMPT` compares `current_buffer` vs `previous_episode_summary`.
-    2.  **Hard Limit**: `max_messages_per_episode` (default: 50) forces a flush to prevent context overflow.
-*   **Input**: Stream of messages.
-*   **Output**: Boolean flag (`is_boundary`) and reason.
-*   **Tradeoff**: We prioritized **semantic coherence** over speed. A pure token-counter would be faster but would split "My favorite movie is..." and "...The Matrix" into separate cells.
+### 4.1 Models and Temperature
 
-### 3.2 Semantic Consolidation & Scene Management
-Located in `src/core/consolidator.py`.
+- LLM provider: OpenAI-compatible.
+- LLM model in evaluations: `gpt-4o-mini`.
+- Embedding model (default OpenAI backend): `text-embedding-3-small`.
+- Temperature: `0.0` (deterministic) for extraction, conflict detection, profile update, scene summary, sufficiency, and query rewrite.
 
-*   **Clustering Metric**: Cosine Similarity via `EmbeddingService`.
-*   **Theme Prototypes**: Uses `THEME_PROTOTYPES` (e.g., "health" -> "wellness gym diet") to bootstrap scene matching even with empty scenes.
-*   **Threshold**: `0.70` (empirically chosen).
-    *   `> 0.70`: Add to existing scene.
-    *   `< 0.70`: Spawn new scene (inferred theme).
-*   **Time Horizon**: `max_time_gap_days` (default: 7). Even if semantically similar, if the last update was > 7 days ago, we prefer starting a new "chapter" (scene) to keep contexts temporally tight.
-*   **Summarization**: Each scene maintains a running summary updated via LLM after new MemCells are added.
+### 4.2 Embedding Dimensions
 
-### 3.3 Conflict Detection Strategy
-Located in `src/core/consolidator.py`.
+- Runtime embedding dimension in storage is derived as:
+  - `embedding_dim = getattr(embedding_service, "dim", 1536)`.
+- For `OpenAIEmbeddings`, `dim` attribute is not set in code, so Milvus defaults to `1536`.
+- For sentence-transformers backend, dimension is model-dependent and read from `get_sentence_embedding_dimension()`.
 
-*   **Scope**: Intra-Scene only. We only check for conflicts within the assigned `MemScene` (e.g., "Health"). This avoids false positives (e.g., "I love running" in 2020 vs "I hate running" in 2024—context matters).
-*   **Extraction**:
-    1.  Flatten all `atomic_facts` from the Scene.
-    2.  Compare new `atomic_facts` against flattened list using `CONFLICT_DETECTION_PROMPT`.
-*   **Resolution Default**: **Recency**.
-    *   *Why*: In a companion context, user preferences evolve. "I am vegan" (today) should supersede "I eat meat" (last year).
-    *   *Safety*: We do not delete the old MemCell. We log a `ConflictRecord` so the history is preserved for debugging.
+### 4.3 Retrieval and Consolidation Hyperparameters
 
-### 3.4 User Profile Management
-Located in `src/core/consolidator.py`.
+- Scene clustering threshold: `0.70` (LoCoMo eval uses `0.60` override).
+- Related-scene threshold (cross-scene conflict scope): `0.65`.
+- Fact dedup threshold (global): `0.92`.
+- Fact dedup threshold (local): `0.95`.
+- Theme classification threshold: `0.30`.
+- Max scene time gap: `7` days (LoCoMo eval uses `30` days override).
+- Max messages per episode: `12`.
+- Retrieval:
+  - `scene_top_k = 10`
+  - `episode_top_k = 10`
+  - RRF constant `k = 60`
+  - Global candidate multiplier `5`
+  - Max retrieval rounds `2`
 
-*   **Process**: Triggered after Scene Consolidation.
-*   **Input**: Recent `MemScene` summaries.
-*   **Extraction**: LLM extracts:
-    1.  **Explicit Facts**: Verifiable attributes (Name, Job, Location).
-    2.  **Implicit Traits**: Recurring patterns or preferences.
-*   **Storage**: Updates the `UserProfile` object, which provides high-level context during retrieval.
+## 5. Infrastructure (MongoDB + Milvus)
 
-### 3.4 Temporal Awareness (Foresight)
-Located in `src/core/extractor.py` and `src/core/retriever.py`.
+### 5.1 Storage split
 
-*   **Extraction**: LLM infers `start_time` and `end_time` from natural language.
-    *   *Explicit*: "I'm travelling for 2 weeks" -> `duration=14 days`.
-    *   *Implicit*: "I have a cold" -> `heuristic=7 days` (tunable).
-*   **Retrieval Filtering**:
-    ```python
-    valid = (item.start_time <= query_time) and (query_time <= item.end_time)
-    ```
-    This ensures that querying "What is the user's health status?" *after* the flu has passed does not return "User has a cold".
+- MongoDB stores structured records:
+  - collections: `memcells`, `memscenes`, `conflicts`, `profiles`.
+  - indexes:
+    - MemCell: `event_id` (unique), `scene_id`, `timestamp`
+    - MemScene: `scene_id` (unique), `theme`
+    - Conflict: `conflict_id` (unique)
+    - Profile: `user_id` (unique)
+- Milvus stores vectors:
+  - `memcells` collection: `event_id`, `embedding`, `scene_id`, `timestamp`
+  - `memscenes` collection: `scene_id`, `embedding`, `theme`
 
----
+### 5.2 Vector index details
 
-## 4. Reconstructive Retrieval Pipeline
+- Index type: `HNSW`
+- Metric: `COSINE`
+- Build params: `M=8`, `efConstruction=64`
+- Search params: `ef=64`
 
-Located in `src/core/retriever.py`.
+### 5.3 Local docker stack
 
-This is an **agentic** pipeline, not just vector search.
+- Milvus standalone: `milvusdb/milvus:v2.3.0`
+- etcd: `quay.io/coreos/etcd:v3.5.0`
+- minio: `minio/minio:RELEASE.2023-03-20T20-16-18Z`
+- MongoDB: `mongo:latest`
 
-1.  **Hybrid Search (Recall)**:
-    *   Retrieves `5 * top_k` candidates using `index.search_hybrid()` (BM25 + Vector).
-    *   We deliberately over-fetch candidates (`max(50, episode_top_k * 5)`) to ensure we catch enough signals to identify relevant *Scenes*.
-2.  **Scene Selection (Precision)**:
-    *   Identifying the "Active Scene" is crucial.
-    *   Score(Scene) = Max(Score(MemCells in Scene)).
-    *   We select the top 3-5 Scenes.
-3.  **Context Expansion**:
-    *   We fetch **ALL** MemCells from the selected scenes. This provides the LLM with the full narrative arc of that topic, not just the isolated chunks that matched the vector query.
-4.  **Sufficiency Check (Agentic Loop)**:
-    *   LLM evaluates: "Does this context answer the query?"
-    *   **If No**: Uses reasoning to rewrite the query (e.g., "Find user's location" -> "Check user's moving plans from last month").
-    *   **Max Rounds**: 2 (to cap latency).
+## 6. Scale Evaluation Results (from JSON files)
 
-## 5. Tradeoffs & Limitations
+Two result sets exist:
 
-*   **Latency vs. Quality**: The agentic retrieval loop (Sufficiency Check) adds ~2-3s per hop. Total latency is ~7s. We accept this for higher precision.
-*   **Granularity**: Atomic facts can sometimes be *too* atomic, losing nuance. We mitigate this by always including the full `episode` text in the retrieval context.
-*   **Scalability**: While storage scales sub-linearly (good), the "Context Expansion" step (loading full scenes) could become a bottleneck if a single scene grows to huge sizes (e.g., "General Chat" scene). We mitigate this with `max_time_gap_days` to force scene splitting.
+- Baseline run: `scale_eval_results_1769750745.json`
+- Improved run: `eval_v2.json`
+
+### 6.1 Raw checkpoint metrics
+
+| Messages | File | MemCells | Scenes | Conflicts | Dedup Rate | Retrieval Accuracy | P50 (ms) | P90 (ms) | Avg (ms) | Valid QA |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 108 | scale_eval_results_1769750745.json | 6 | 6 | 0 | 0.00% | 54.10% | 7509 | 9057 | 7509 | 61 |
+| 215 | scale_eval_results_1769750745.json | 10 | 7 | 0 | 0.00% | 54.29% | 8807 | 10650 | 8807 | 105 |
+| 306 | scale_eval_results_1769750745.json | 14 | 11 | 0 | 0.00% | 42.65% | 7140 | 8436 | 7140 | 136 |
+| 519 | scale_eval_results_1769750745.json | 24 | 18 | 0 | 0.00% | 23.84% | 7658 | 9012 | 7658 | 302 |
+| 108 | eval_v2.json | 6 | 1 | 0 | 9.68% | 73.77% | 867 | 1216 | 953 | 61 |
+| 215 | eval_v2.json | 10 | 1 | 0 | 8.33% | 68.57% | 808 | 1536 | 926 | 105 |
+| 306 | eval_v2.json | 14 | 1 | 1 | 6.35% | 72.79% | 773 | 1165 | 870 | 136 |
+| 519 | eval_v2.json | 24 | 3 | 1 | 6.42% | 70.76% | 770 | 1053 | 828 | 236 |
+
+`eval_v2.json` also includes checkpoint query-time anchors:
+
+- 108: `2023-07-06T20:18:00+00:00`
+- 215: `2023-07-20T20:56:00+00:00`
+- 306: `2023-08-25T13:33:00+00:00`
+- 519: `2023-10-22T09:55:00+00:00`
+
+### 6.2 v2 vs baseline deltas
+
+| Messages | Accuracy Delta | P90 Latency Delta | Scenes Delta | Conflicts Delta | Dedup Delta |
+|---|---:|---:|---:|---:|---:|
+| 108 | +19.67 pts | -7840 ms | -5 | 0 | +9.68 pts |
+| 215 | +14.29 pts | -9114 ms | -6 | 0 | +8.33 pts |
+| 306 | +30.15 pts | -7271 ms | -10 | +1 | +6.35 pts |
+| 519 | +46.92 pts | -7959 ms | -15 | +1 | +6.42 pts |
+
+## 7. Interpretation Against Task Requirements
+
+### 7.1 What is working
+
+- Structured extraction is stable across scale (`6 -> 24` MemCells as message count grows).
+- Conflict handling appears in larger checkpoints (`1` conflict by 306 and 519 in v2).
+- Deduplication is active in v2 (`~6-10%`), absent in baseline (`0%`).
+- Retrieval relevance remains high at 500+ messages in v2 (`70.76%`), while baseline degrades sharply.
+- Latency in v2 stays around ~0.8-1.5s P90 across checkpoints, satisfying scale requirement.
+
+### 7.2 Tradeoffs observed
+
+- Very aggressive scene consolidation in v2 (1-3 scenes total) improves retrieval speed and accuracy on this dataset but can reduce thematic granularity.
+- Baseline over-fragmented scenes (6/7/11/18), likely causing retrieval noise and lower accuracy.
+
+## 8. Current Limitations and Next Technical Steps
+
+- Profile quality is benchmarked indirectly; add explicit profile regression metrics.
+- Temporal foresight validity is implemented but should be stress-tested with more synthetic expiry-heavy conversations.
+- Add ablations per task rubric:
+  - no conflict resolution
+  - no foresight filtering
+  - no scene-guided retrieval
+- Add explicit infra benchmark dimensions:
+  - Mongo read/write p95 under concurrent ingestion
+  - Milvus recall@k vs latency across larger vector counts
