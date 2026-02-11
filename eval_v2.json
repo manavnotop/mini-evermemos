@@ -1,0 +1,2781 @@
+{
+  "config": {
+    "dataset": "data/locomo10.json",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "checkpoints_target": [
+      100,
+      200,
+      300,
+      500
+    ]
+  },
+  "checkpoints": [
+    {
+      "message_count": 108,
+      "timestamp": "2026-02-11T03:57:38.135922+00:00",
+      "eval_query_time": "2023-07-06T20:18:00+00:00",
+      "metrics": {
+        "memcells": 6,
+        "scenes": 1,
+        "conflicts": 0,
+        "dedup_rate": 9.677419354838712,
+        "retrieval_accuracy": 73.77049180327869,
+        "valid_qa_count": 61,
+        "latency_p50": 866.7418956756592,
+        "latency_p90": 1216.226053237915,
+        "latency_avg": 952.8429781804319,
+        "skipped_no_evidence_qa_count": 2
+      },
+      "qa_results": [
+        {
+          "question": "When did Caroline go to the LGBTQ support group?",
+          "match": true,
+          "latency_ms": 1063.5120868682861
+        },
+        {
+          "question": "When did Melanie paint a sunrise?",
+          "match": true,
+          "latency_ms": 794.4767475128174
+        },
+        {
+          "question": "What fields would Caroline be likely to pursue in her educaton?",
+          "match": true,
+          "latency_ms": 814.4948482513428
+        },
+        {
+          "question": "What did Caroline research?",
+          "match": true,
+          "latency_ms": 741.2641048431396
+        },
+        {
+          "question": "What is Caroline's identity?",
+          "match": true,
+          "latency_ms": 795.5551147460938
+        },
+        {
+          "question": "When did Melanie run a charity race?",
+          "match": true,
+          "latency_ms": 1152.1179676055908
+        },
+        {
+          "question": "When is Melanie planning on going camping?",
+          "match": false,
+          "latency_ms": 670.3269481658936
+        },
+        {
+          "question": "What is Caroline's relationship status?",
+          "match": true,
+          "latency_ms": 1153.6860466003418
+        },
+        {
+          "question": "When did Caroline give a speech at a school?",
+          "match": true,
+          "latency_ms": 824.2480754852295
+        },
+        {
+          "question": "When did Caroline meet up with her friends, family, and mentors?",
+          "match": true,
+          "latency_ms": 1019.0370082855225
+        },
+        {
+          "question": "How long has Caroline had her current group of friends for?",
+          "match": true,
+          "latency_ms": 870.1021671295166
+        },
+        {
+          "question": "Where did Caroline move from 4 years ago?",
+          "match": true,
+          "latency_ms": 903.8188457489014
+        },
+        {
+          "question": "How long ago was Caroline's 18th birthday?",
+          "match": true,
+          "latency_ms": 806.7619800567627
+        },
+        {
+          "question": "What career path has Caroline decided to persue?",
+          "match": true,
+          "latency_ms": 658.7841510772705
+        },
+        {
+          "question": "Would Caroline still want to pursue counseling as a career if she hadn't received support growing up?",
+          "match": true,
+          "latency_ms": 881.6008567810059
+        },
+        {
+          "question": "When did Melanie sign up for a pottery class?",
+          "match": false,
+          "latency_ms": 866.6248321533203
+        },
+        {
+          "question": "When is Caroline going to the transgender conference?",
+          "match": true,
+          "latency_ms": 1474.208116531372
+        },
+        {
+          "question": "What do Melanie's kids like?",
+          "match": true,
+          "latency_ms": 1009.0630054473877
+        },
+        {
+          "question": "When did Melanie go to the museum?",
+          "match": false,
+          "latency_ms": 622.5390434265137
+        },
+        {
+          "question": "When did Caroline have a picnic?",
+          "match": true,
+          "latency_ms": 923.3007431030273
+        },
+        {
+          "question": "Would Caroline likely have Dr. Seuss books on her bookshelf?",
+          "match": true,
+          "latency_ms": 750.9298324584961
+        },
+        {
+          "question": "When did Melanie go camping in June?",
+          "match": true,
+          "latency_ms": 1125.7438659667969
+        },
+        {
+          "question": "When did Caroline go to a pride parade during the summer?",
+          "match": true,
+          "latency_ms": 698.6103057861328
+        },
+        {
+          "question": "What did the charity race raise awareness for?",
+          "match": true,
+          "latency_ms": 765.042781829834
+        },
+        {
+          "question": "What did Melanie realize after the charity race?",
+          "match": true,
+          "latency_ms": 1641.798734664917
+        },
+        {
+          "question": "How does Melanie prioritize self-care?",
+          "match": true,
+          "latency_ms": 816.2491321563721
+        },
+        {
+          "question": "What are Caroline's plans for the summer?",
+          "match": true,
+          "latency_ms": 1018.5861587524414
+        },
+        {
+          "question": "What type of individuals does the adoption agency Caroline is considering support?",
+          "match": true,
+          "latency_ms": 1107.7358722686768
+        },
+        {
+          "question": "Why did Caroline choose the adoption agency?",
+          "match": true,
+          "latency_ms": 744.779109954834
+        },
+        {
+          "question": "What is Caroline excited about in the adoption process?",
+          "match": true,
+          "latency_ms": 687.2849464416504
+        },
+        {
+          "question": "What does Melanie think about Caroline's decision to adopt?",
+          "match": true,
+          "latency_ms": 976.6557216644287
+        },
+        {
+          "question": "How long have Mel and her husband been married?",
+          "match": true,
+          "latency_ms": 906.8269729614258
+        },
+        {
+          "question": "What does Caroline's necklace symbolize?",
+          "match": true,
+          "latency_ms": 866.7418956756592
+        },
+        {
+          "question": "What country is Caroline's grandma from?",
+          "match": true,
+          "latency_ms": 1711.9050025939941
+        },
+        {
+          "question": "What was grandma's gift to Caroline?",
+          "match": true,
+          "latency_ms": 3323.110818862915
+        },
+        {
+          "question": "What is Melanie's hand-painted bowl a reminder of?",
+          "match": true,
+          "latency_ms": 973.6580848693848
+        },
+        {
+          "question": "What did Melanie and her family do while camping?",
+          "match": false,
+          "latency_ms": 1055.9961795806885
+        },
+        {
+          "question": "What kind of counseling and mental health services is Caroline interested in pursuing?",
+          "match": true,
+          "latency_ms": 808.7301254272461
+        },
+        {
+          "question": "What workshop did Caroline attend recently?",
+          "match": true,
+          "latency_ms": 967.4677848815918
+        },
+        {
+          "question": "What was discussed in the LGBTQ+ counseling workshop?",
+          "match": true,
+          "latency_ms": 623.51393699646
+        },
+        {
+          "question": "What motivated Caroline to pursue counseling?",
+          "match": true,
+          "latency_ms": 968.5049057006836
+        },
+        {
+          "question": "What kind of place does Caroline want to create for people?",
+          "match": true,
+          "latency_ms": 679.8629760742188
+        },
+        {
+          "question": "Did Melanie make the black and white bowl in the photo?",
+          "match": false,
+          "latency_ms": 674.4098663330078
+        },
+        {
+          "question": "What kind of books does Caroline have in her library?",
+          "match": true,
+          "latency_ms": 1525.3586769104004
+        },
+        {
+          "question": "What was Melanie's favorite book from her childhood?",
+          "match": false,
+          "latency_ms": 755.1589012145996
+        },
+        {
+          "question": "What did Caroline realize after her charity race?",
+          "match": false,
+          "latency_ms": 764.7509574890137
+        },
+        {
+          "question": "What are Melanie's plans for the summer with respect to adoption?",
+          "match": true,
+          "latency_ms": 934.1528415679932
+        },
+        {
+          "question": "What type of individuals does the adoption agency Melanie is considering support?",
+          "match": true,
+          "latency_ms": 1092.879056930542
+        },
+        {
+          "question": "Why did Melanie choose the adoption agency?",
+          "match": false,
+          "latency_ms": 1223.0558395385742
+        },
+        {
+          "question": "What is Melanie excited about in her adoption process?",
+          "match": true,
+          "latency_ms": 710.1037502288818
+        },
+        {
+          "question": "What does Melanie's necklace symbolize?",
+          "match": false,
+          "latency_ms": 1188.9069080352783
+        },
+        {
+          "question": "What country is Melanie's grandma from?",
+          "match": true,
+          "latency_ms": 670.3050136566162
+        },
+        {
+          "question": "What was grandma's gift to Melanie?",
+          "match": false,
+          "latency_ms": 845.0307846069336
+        },
+        {
+          "question": "What was grandpa's gift to Caroline?",
+          "match": true,
+          "latency_ms": 919.3780422210693
+        },
+        {
+          "question": "What is Caroline's hand-painted bowl a reminder of?",
+          "match": false,
+          "latency_ms": 1064.9316310882568
+        },
+        {
+          "question": "What did Caroline and her family do while camping?",
+          "match": false,
+          "latency_ms": 796.046257019043
+        },
+        {
+          "question": "What kind of counseling and mental health services is Melanie interested in pursuing?",
+          "match": false,
+          "latency_ms": 688.8267993927002
+        },
+        {
+          "question": "What kind of counseling workshop did Melanie attend recently?",
+          "match": false,
+          "latency_ms": 681.9369792938232
+        },
+        {
+          "question": "What motivated Melanie to pursue counseling?",
+          "match": true,
+          "latency_ms": 949.9678611755371
+        },
+        {
+          "question": "What kind of place does Melanie want to create for people?",
+          "match": false,
+          "latency_ms": 642.0907974243164
+        },
+        {
+          "question": "Did Caroline make the black and white bowl in the photo?",
+          "match": false,
+          "latency_ms": 730.8728694915771
+        }
+      ]
+    },
+    {
+      "message_count": 215,
+      "timestamp": "2026-02-11T04:02:23.534827+00:00",
+      "eval_query_time": "2023-07-20T20:56:00+00:00",
+      "metrics": {
+        "memcells": 10,
+        "scenes": 1,
+        "conflicts": 0,
+        "dedup_rate": 8.333333333333337,
+        "retrieval_accuracy": 68.57142857142857,
+        "valid_qa_count": 105,
+        "latency_p50": 808.178186416626,
+        "latency_p90": 1535.977554321289,
+        "latency_avg": 926.0403428758893,
+        "skipped_no_evidence_qa_count": 2
+      },
+      "qa_results": [
+        {
+          "question": "When did Caroline go to the LGBTQ support group?",
+          "match": true,
+          "latency_ms": 872.3909854888916
+        },
+        {
+          "question": "When did Melanie paint a sunrise?",
+          "match": true,
+          "latency_ms": 1459.4361782073975
+        },
+        {
+          "question": "What fields would Caroline be likely to pursue in her educaton?",
+          "match": true,
+          "latency_ms": 807.5990676879883
+        },
+        {
+          "question": "What did Caroline research?",
+          "match": true,
+          "latency_ms": 1675.771951675415
+        },
+        {
+          "question": "What is Caroline's identity?",
+          "match": true,
+          "latency_ms": 703.6271095275879
+        },
+        {
+          "question": "When did Melanie run a charity race?",
+          "match": true,
+          "latency_ms": 838.1059169769287
+        },
+        {
+          "question": "When is Melanie planning on going camping?",
+          "match": false,
+          "latency_ms": 1019.0689563751221
+        },
+        {
+          "question": "What is Caroline's relationship status?",
+          "match": true,
+          "latency_ms": 655.9031009674072
+        },
+        {
+          "question": "When did Caroline give a speech at a school?",
+          "match": true,
+          "latency_ms": 1238.274097442627
+        },
+        {
+          "question": "When did Caroline meet up with her friends, family, and mentors?",
+          "match": true,
+          "latency_ms": 1273.6949920654297
+        },
+        {
+          "question": "How long has Caroline had her current group of friends for?",
+          "match": true,
+          "latency_ms": 870.189905166626
+        },
+        {
+          "question": "Where did Caroline move from 4 years ago?",
+          "match": true,
+          "latency_ms": 825.228214263916
+        },
+        {
+          "question": "How long ago was Caroline's 18th birthday?",
+          "match": true,
+          "latency_ms": 827.7521133422852
+        },
+        {
+          "question": "What career path has Caroline decided to persue?",
+          "match": true,
+          "latency_ms": 1357.2800159454346
+        },
+        {
+          "question": "Would Caroline still want to pursue counseling as a career if she hadn't received support growing up?",
+          "match": true,
+          "latency_ms": 736.4637851715088
+        },
+        {
+          "question": "What activities does Melanie partake in?",
+          "match": true,
+          "latency_ms": 2127.250909805298
+        },
+        {
+          "question": "When did Melanie sign up for a pottery class?",
+          "match": false,
+          "latency_ms": 951.2898921966553
+        },
+        {
+          "question": "When is Caroline going to the transgender conference?",
+          "match": true,
+          "latency_ms": 1557.3968887329102
+        },
+        {
+          "question": "Where has Melanie camped?",
+          "match": true,
+          "latency_ms": 1671.3769435882568
+        },
+        {
+          "question": "What do Melanie's kids like?",
+          "match": true,
+          "latency_ms": 714.1609191894531
+        },
+        {
+          "question": "When did Melanie go to the museum?",
+          "match": false,
+          "latency_ms": 652.6458263397217
+        },
+        {
+          "question": "When did Caroline have a picnic?",
+          "match": true,
+          "latency_ms": 948.7040042877197
+        },
+        {
+          "question": "Would Caroline likely have Dr. Seuss books on her bookshelf?",
+          "match": true,
+          "latency_ms": 1979.1998863220215
+        },
+        {
+          "question": "What books has Melanie read?",
+          "match": true,
+          "latency_ms": 819.4580078125
+        },
+        {
+          "question": "What does Melanie do to destress?",
+          "match": true,
+          "latency_ms": 1689.9077892303467
+        },
+        {
+          "question": "When did Caroline go to the LGBTQ conference?",
+          "match": true,
+          "latency_ms": 1841.6082859039307
+        },
+        {
+          "question": "When did Melanie read the book \"nothing is impossible\"?",
+          "match": false,
+          "latency_ms": 619.4679737091064
+        },
+        {
+          "question": "Would Caroline pursue writing as a career option?",
+          "match": true,
+          "latency_ms": 677.9541969299316
+        },
+        {
+          "question": "When did Caroline go to the adoption meeting?",
+          "match": true,
+          "latency_ms": 831.7387104034424
+        },
+        {
+          "question": "When did Melanie go to the pottery workshop?",
+          "match": false,
+          "latency_ms": 671.5900897979736
+        },
+        {
+          "question": "When did Melanie go camping in June?",
+          "match": true,
+          "latency_ms": 674.4420528411865
+        },
+        {
+          "question": "What LGBTQ+ events has Caroline participated in?",
+          "match": true,
+          "latency_ms": 1238.987684249878
+        },
+        {
+          "question": "When did Caroline go to a pride parade during the summer?",
+          "match": true,
+          "latency_ms": 842.5137996673584
+        },
+        {
+          "question": "What events has Caroline participated in to help children?",
+          "match": true,
+          "latency_ms": 766.1128044128418
+        },
+        {
+          "question": "When did Melanie go camping in July?",
+          "match": true,
+          "latency_ms": 948.1639862060547
+        },
+        {
+          "question": "When did Caroline join a mentorship program?",
+          "match": true,
+          "latency_ms": 727.3678779602051
+        },
+        {
+          "question": "What did Melanie paint recently?",
+          "match": true,
+          "latency_ms": 802.6800155639648
+        },
+        {
+          "question": "What activities has Melanie done with her family?",
+          "match": true,
+          "latency_ms": 626.6319751739502
+        },
+        {
+          "question": "In what ways is Caroline participating in the LGBTQ community?",
+          "match": true,
+          "latency_ms": 920.4301834106445
+        },
+        {
+          "question": "How many times has Melanie gone to the beach in 2023?",
+          "match": false,
+          "latency_ms": 776.1449813842773
+        },
+        {
+          "question": "When did Caroline join a new activist group?",
+          "match": true,
+          "latency_ms": 729.2053699493408
+        },
+        {
+          "question": "Would Melanie be more interested in going to a national park or a theme park?",
+          "match": true,
+          "latency_ms": 675.5020618438721
+        },
+        {
+          "question": "What did the charity race raise awareness for?",
+          "match": true,
+          "latency_ms": 680.9120178222656
+        },
+        {
+          "question": "What did Melanie realize after the charity race?",
+          "match": true,
+          "latency_ms": 702.8701305389404
+        },
+        {
+          "question": "How does Melanie prioritize self-care?",
+          "match": true,
+          "latency_ms": 726.4730930328369
+        },
+        {
+          "question": "What are Caroline's plans for the summer?",
+          "match": true,
+          "latency_ms": 725.1808643341064
+        },
+        {
+          "question": "What type of individuals does the adoption agency Caroline is considering support?",
+          "match": true,
+          "latency_ms": 702.9049396514893
+        },
+        {
+          "question": "Why did Caroline choose the adoption agency?",
+          "match": true,
+          "latency_ms": 747.1740245819092
+        },
+        {
+          "question": "What is Caroline excited about in the adoption process?",
+          "match": true,
+          "latency_ms": 1033.585786819458
+        },
+        {
+          "question": "What does Melanie think about Caroline's decision to adopt?",
+          "match": true,
+          "latency_ms": 808.178186416626
+        },
+        {
+          "question": "How long have Mel and her husband been married?",
+          "match": true,
+          "latency_ms": 960.068941116333
+        },
+        {
+          "question": "What does Caroline's necklace symbolize?",
+          "match": true,
+          "latency_ms": 682.8131675720215
+        },
+        {
+          "question": "What country is Caroline's grandma from?",
+          "match": true,
+          "latency_ms": 672.6961135864258
+        },
+        {
+          "question": "What was grandma's gift to Caroline?",
+          "match": true,
+          "latency_ms": 689.202070236206
+        },
+        {
+          "question": "What is Melanie's hand-painted bowl a reminder of?",
+          "match": true,
+          "latency_ms": 673.0351448059082
+        },
+        {
+          "question": "What did Melanie and her family do while camping?",
+          "match": true,
+          "latency_ms": 597.8419780731201
+        },
+        {
+          "question": "What kind of counseling and mental health services is Caroline interested in pursuing?",
+          "match": true,
+          "latency_ms": 633.0502033233643
+        },
+        {
+          "question": "What workshop did Caroline attend recently?",
+          "match": true,
+          "latency_ms": 741.9111728668213
+        },
+        {
+          "question": "What was discussed in the LGBTQ+ counseling workshop?",
+          "match": true,
+          "latency_ms": 766.075849533081
+        },
+        {
+          "question": "What motivated Caroline to pursue counseling?",
+          "match": true,
+          "latency_ms": 773.92578125
+        },
+        {
+          "question": "What kind of place does Caroline want to create for people?",
+          "match": true,
+          "latency_ms": 722.9058742523193
+        },
+        {
+          "question": "Did Melanie make the black and white bowl in the photo?",
+          "match": false,
+          "latency_ms": 583.9638710021973
+        },
+        {
+          "question": "What kind of books does Caroline have in her library?",
+          "match": true,
+          "latency_ms": 811.5048408508301
+        },
+        {
+          "question": "What was Melanie's favorite book from her childhood?",
+          "match": false,
+          "latency_ms": 599.5659828186035
+        },
+        {
+          "question": "What book did Caroline recommend to Melanie?",
+          "match": true,
+          "latency_ms": 639.397144317627
+        },
+        {
+          "question": "What did Caroline take away from the book \"Becoming Nicole\"?",
+          "match": true,
+          "latency_ms": 867.75803565979
+        },
+        {
+          "question": "What are the new shoes that Melanie got used for?",
+          "match": true,
+          "latency_ms": 807.3108196258545
+        },
+        {
+          "question": "What is Melanie's reason for getting into running?",
+          "match": true,
+          "latency_ms": 785.9971523284912
+        },
+        {
+          "question": "What does Melanie say running has been great for?",
+          "match": true,
+          "latency_ms": 903.9568901062012
+        },
+        {
+          "question": "What did Mel and her kids make during the pottery workshop?",
+          "match": false,
+          "latency_ms": 1057.671070098877
+        },
+        {
+          "question": "What kind of pot did Mel and her kids make with clay?",
+          "match": true,
+          "latency_ms": 1075.2079486846924
+        },
+        {
+          "question": "What creative project do Mel and her kids do together besides pottery?",
+          "match": true,
+          "latency_ms": 958.4848880767822
+        },
+        {
+          "question": "What did Mel and her kids paint in their latest project in July 2023?",
+          "match": true,
+          "latency_ms": 672.5602149963379
+        },
+        {
+          "question": "What did Caroline see at the council meeting for adoption?",
+          "match": true,
+          "latency_ms": 705.9588432312012
+        },
+        {
+          "question": "What do sunflowers represent according to Caroline?",
+          "match": false,
+          "latency_ms": 662.2650623321533
+        },
+        {
+          "question": "Why are flowers important to Melanie?",
+          "match": false,
+          "latency_ms": 887.9449367523193
+        },
+        {
+          "question": "What inspired Caroline's painting for the art show?",
+          "match": true,
+          "latency_ms": 662.8639698028564
+        },
+        {
+          "question": "How often does Melanie go to the beach with her kids?",
+          "match": false,
+          "latency_ms": 624.589204788208
+        },
+        {
+          "question": "What did Melanie and her family see during their camping trip last year?",
+          "match": true,
+          "latency_ms": 782.5808525085449
+        },
+        {
+          "question": "How did Melanie feel while watching the meteor shower?",
+          "match": false,
+          "latency_ms": 692.4262046813965
+        },
+        {
+          "question": "What did Caroline realize after her charity race?",
+          "match": false,
+          "latency_ms": 892.2669887542725
+        },
+        {
+          "question": "What are Melanie's plans for the summer with respect to adoption?",
+          "match": true,
+          "latency_ms": 804.4118881225586
+        },
+        {
+          "question": "What type of individuals does the adoption agency Melanie is considering support?",
+          "match": true,
+          "latency_ms": 932.7559471130371
+        },
+        {
+          "question": "Why did Melanie choose the adoption agency?",
+          "match": false,
+          "latency_ms": 1592.7050113677979
+        },
+        {
+          "question": "What is Melanie excited about in her adoption process?",
+          "match": true,
+          "latency_ms": 847.5899696350098
+        },
+        {
+          "question": "What does Melanie's necklace symbolize?",
+          "match": false,
+          "latency_ms": 1763.5316848754883
+        },
+        {
+          "question": "What country is Melanie's grandma from?",
+          "match": true,
+          "latency_ms": 768.6538696289062
+        },
+        {
+          "question": "What was grandma's gift to Melanie?",
+          "match": false,
+          "latency_ms": 651.1516571044922
+        },
+        {
+          "question": "What was grandpa's gift to Caroline?",
+          "match": false,
+          "latency_ms": 914.8781299591064
+        },
+        {
+          "question": "What is Caroline's hand-painted bowl a reminder of?",
+          "match": false,
+          "latency_ms": 1521.697998046875
+        },
+        {
+          "question": "What did Caroline and her family do while camping?",
+          "match": false,
+          "latency_ms": 982.4807643890381
+        },
+        {
+          "question": "What kind of counseling and mental health services is Melanie interested in pursuing?",
+          "match": false,
+          "latency_ms": 777.263879776001
+        },
+        {
+          "question": "What kind of counseling workshop did Melanie attend recently?",
+          "match": false,
+          "latency_ms": 806.3619136810303
+        },
+        {
+          "question": "What motivated Melanie to pursue counseling?",
+          "match": false,
+          "latency_ms": 1054.9778938293457
+        },
+        {
+          "question": "What kind of place does Melanie want to create for people?",
+          "match": false,
+          "latency_ms": 1156.4650535583496
+        },
+        {
+          "question": "Did Caroline make the black and white bowl in the photo?",
+          "match": false,
+          "latency_ms": 886.5020275115967
+        },
+        {
+          "question": "What are the new shoes that Caroline got used for?",
+          "match": false,
+          "latency_ms": 781.6250324249268
+        },
+        {
+          "question": "What is Caroline's reason for getting into running?",
+          "match": false,
+          "latency_ms": 1217.8699970245361
+        },
+        {
+          "question": "What does Caroline say running has been great for?",
+          "match": false,
+          "latency_ms": 949.8460292816162
+        },
+        {
+          "question": "What did Melanie see at the council meeting for adoption?",
+          "match": false,
+          "latency_ms": 729.9630641937256
+        },
+        {
+          "question": "What inspired Melanie's painting for the art show?",
+          "match": false,
+          "latency_ms": 858.7820529937744
+        },
+        {
+          "question": "What inspired Caroline's sculpture for the art show?",
+          "match": true,
+          "latency_ms": 991.908073425293
+        },
+        {
+          "question": "How often does Caroline go to the beach with her kids?",
+          "match": false,
+          "latency_ms": 1062.2801780700684
+        },
+        {
+          "question": "What did Caroline and her family see during their camping trip last year?",
+          "match": false,
+          "latency_ms": 1108.0141067504883
+        },
+        {
+          "question": "How did Caroline feel while watching the meteor shower?",
+          "match": false,
+          "latency_ms": 1714.7200107574463
+        }
+      ]
+    },
+    {
+      "message_count": 306,
+      "timestamp": "2026-02-11T04:08:32.318487+00:00",
+      "eval_query_time": "2023-08-25T13:33:00+00:00",
+      "metrics": {
+        "memcells": 14,
+        "scenes": 1,
+        "conflicts": 1,
+        "dedup_rate": 6.349206349206349,
+        "retrieval_accuracy": 72.79411764705883,
+        "valid_qa_count": 136,
+        "latency_p50": 773.430585861206,
+        "latency_p90": 1165.430498123169,
+        "latency_avg": 870.1794305268456,
+        "skipped_no_evidence_qa_count": 2
+      },
+      "qa_results": [
+        {
+          "question": "When did Caroline go to the LGBTQ support group?",
+          "match": true,
+          "latency_ms": 1594.1641330718994
+        },
+        {
+          "question": "When did Melanie paint a sunrise?",
+          "match": true,
+          "latency_ms": 875.079870223999
+        },
+        {
+          "question": "What fields would Caroline be likely to pursue in her educaton?",
+          "match": true,
+          "latency_ms": 1035.8202457427979
+        },
+        {
+          "question": "What did Caroline research?",
+          "match": true,
+          "latency_ms": 969.2270755767822
+        },
+        {
+          "question": "What is Caroline's identity?",
+          "match": true,
+          "latency_ms": 1388.8850212097168
+        },
+        {
+          "question": "When did Melanie run a charity race?",
+          "match": true,
+          "latency_ms": 685.0569248199463
+        },
+        {
+          "question": "When is Melanie planning on going camping?",
+          "match": false,
+          "latency_ms": 1510.8528137207031
+        },
+        {
+          "question": "What is Caroline's relationship status?",
+          "match": true,
+          "latency_ms": 694.2658424377441
+        },
+        {
+          "question": "When did Caroline give a speech at a school?",
+          "match": true,
+          "latency_ms": 1435.0700378417969
+        },
+        {
+          "question": "When did Caroline meet up with her friends, family, and mentors?",
+          "match": true,
+          "latency_ms": 705.2450180053711
+        },
+        {
+          "question": "How long has Caroline had her current group of friends for?",
+          "match": true,
+          "latency_ms": 1013.5700702667236
+        },
+        {
+          "question": "Where did Caroline move from 4 years ago?",
+          "match": true,
+          "latency_ms": 708.5597515106201
+        },
+        {
+          "question": "How long ago was Caroline's 18th birthday?",
+          "match": true,
+          "latency_ms": 767.8101062774658
+        },
+        {
+          "question": "What career path has Caroline decided to persue?",
+          "match": true,
+          "latency_ms": 792.0107841491699
+        },
+        {
+          "question": "Would Caroline still want to pursue counseling as a career if she hadn't received support growing up?",
+          "match": true,
+          "latency_ms": 973.6030101776123
+        },
+        {
+          "question": "What activities does Melanie partake in?",
+          "match": true,
+          "latency_ms": 777.8639793395996
+        },
+        {
+          "question": "When did Melanie sign up for a pottery class?",
+          "match": false,
+          "latency_ms": 836.3819122314453
+        },
+        {
+          "question": "When is Caroline going to the transgender conference?",
+          "match": true,
+          "latency_ms": 972.3899364471436
+        },
+        {
+          "question": "Where has Melanie camped?",
+          "match": true,
+          "latency_ms": 1076.1289596557617
+        },
+        {
+          "question": "What do Melanie's kids like?",
+          "match": true,
+          "latency_ms": 909.2369079589844
+        },
+        {
+          "question": "When did Melanie go to the museum?",
+          "match": false,
+          "latency_ms": 1145.1661586761475
+        },
+        {
+          "question": "When did Caroline have a picnic?",
+          "match": true,
+          "latency_ms": 793.8778400421143
+        },
+        {
+          "question": "Would Caroline likely have Dr. Seuss books on her bookshelf?",
+          "match": true,
+          "latency_ms": 782.599925994873
+        },
+        {
+          "question": "What books has Melanie read?",
+          "match": true,
+          "latency_ms": 762.7067565917969
+        },
+        {
+          "question": "What does Melanie do to destress?",
+          "match": true,
+          "latency_ms": 720.1108932495117
+        },
+        {
+          "question": "When did Caroline go to the LGBTQ conference?",
+          "match": true,
+          "latency_ms": 765.5689716339111
+        },
+        {
+          "question": "When did Melanie read the book \"nothing is impossible\"?",
+          "match": false,
+          "latency_ms": 1611.7680072784424
+        },
+        {
+          "question": "Would Caroline pursue writing as a career option?",
+          "match": true,
+          "latency_ms": 620.9361553192139
+        },
+        {
+          "question": "When did Caroline go to the adoption meeting?",
+          "match": false,
+          "latency_ms": 883.0652236938477
+        },
+        {
+          "question": "When did Melanie go to the pottery workshop?",
+          "match": false,
+          "latency_ms": 1923.1719970703125
+        },
+        {
+          "question": "When did Melanie go camping in June?",
+          "match": true,
+          "latency_ms": 782.9749584197998
+        },
+        {
+          "question": "What LGBTQ+ events has Caroline participated in?",
+          "match": true,
+          "latency_ms": 1044.7649955749512
+        },
+        {
+          "question": "When did Caroline go to a pride parade during the summer?",
+          "match": true,
+          "latency_ms": 814.100980758667
+        },
+        {
+          "question": "What events has Caroline participated in to help children?",
+          "match": true,
+          "latency_ms": 741.9435977935791
+        },
+        {
+          "question": "When did Melanie go camping in July?",
+          "match": false,
+          "latency_ms": 744.9767589569092
+        },
+        {
+          "question": "When did Caroline join a mentorship program?",
+          "match": true,
+          "latency_ms": 967.4808979034424
+        },
+        {
+          "question": "What did Melanie paint recently?",
+          "match": false,
+          "latency_ms": 1294.2938804626465
+        },
+        {
+          "question": "What activities has Melanie done with her family?",
+          "match": true,
+          "latency_ms": 730.8297157287598
+        },
+        {
+          "question": "In what ways is Caroline participating in the LGBTQ community?",
+          "match": true,
+          "latency_ms": 764.6510601043701
+        },
+        {
+          "question": "How many times has Melanie gone to the beach in 2023?",
+          "match": false,
+          "latency_ms": 881.8628787994385
+        },
+        {
+          "question": "When did Caroline join a new activist group?",
+          "match": true,
+          "latency_ms": 595.1852798461914
+        },
+        {
+          "question": "Would Melanie be more interested in going to a national park or a theme park?",
+          "match": true,
+          "latency_ms": 746.7541694641113
+        },
+        {
+          "question": "What kind of art does Caroline make?",
+          "match": true,
+          "latency_ms": 891.7219638824463
+        },
+        {
+          "question": "When is Melanie's daughter's birthday?",
+          "match": true,
+          "latency_ms": 776.6730785369873
+        },
+        {
+          "question": "When did Caroline attend a pride parade in August?",
+          "match": true,
+          "latency_ms": 731.4858436584473
+        },
+        {
+          "question": "Who supports Caroline when she has a negative experience?",
+          "match": true,
+          "latency_ms": 722.6061820983887
+        },
+        {
+          "question": "What types of pottery have Melanie and her kids made?",
+          "match": true,
+          "latency_ms": 869.513988494873
+        },
+        {
+          "question": "When did Caroline and Melanie go to a pride fesetival together?",
+          "match": false,
+          "latency_ms": 792.4816608428955
+        },
+        {
+          "question": "What would Caroline's political leaning likely be?",
+          "match": true,
+          "latency_ms": 842.6408767700195
+        },
+        {
+          "question": "What has Melanie painted?",
+          "match": true,
+          "latency_ms": 669.3999767303467
+        },
+        {
+          "question": "What are Melanie's pets' names?",
+          "match": true,
+          "latency_ms": 647.5059986114502
+        },
+        {
+          "question": "When did Caroline apply to adoption agencies?",
+          "match": true,
+          "latency_ms": 769.442081451416
+        },
+        {
+          "question": "When did Caroline draw a self-portrait?",
+          "match": true,
+          "latency_ms": 1416.7430400848389
+        },
+        {
+          "question": "What subject have Caroline and Melanie both painted?",
+          "match": true,
+          "latency_ms": 645.9999084472656
+        },
+        {
+          "question": "What symbols are important to Caroline?",
+          "match": true,
+          "latency_ms": 707.3941230773926
+        },
+        {
+          "question": "When did Caroline encounter people on a hike and have a negative experience?",
+          "match": true,
+          "latency_ms": 841.2530422210693
+        },
+        {
+          "question": "When did Melanie make a plate in pottery class?",
+          "match": false,
+          "latency_ms": 1038.0170345306396
+        },
+        {
+          "question": "Would Caroline be considered religious?",
+          "match": false,
+          "latency_ms": 724.7970104217529
+        },
+        {
+          "question": "What did the charity race raise awareness for?",
+          "match": true,
+          "latency_ms": 759.9999904632568
+        },
+        {
+          "question": "What did Melanie realize after the charity race?",
+          "match": true,
+          "latency_ms": 670.9849834442139
+        },
+        {
+          "question": "How does Melanie prioritize self-care?",
+          "match": true,
+          "latency_ms": 904.9830436706543
+        },
+        {
+          "question": "What are Caroline's plans for the summer?",
+          "match": true,
+          "latency_ms": 2163.388967514038
+        },
+        {
+          "question": "What type of individuals does the adoption agency Caroline is considering support?",
+          "match": true,
+          "latency_ms": 778.6049842834473
+        },
+        {
+          "question": "Why did Caroline choose the adoption agency?",
+          "match": true,
+          "latency_ms": 828.2291889190674
+        },
+        {
+          "question": "What is Caroline excited about in the adoption process?",
+          "match": true,
+          "latency_ms": 657.1741104125977
+        },
+        {
+          "question": "What does Melanie think about Caroline's decision to adopt?",
+          "match": true,
+          "latency_ms": 949.9950408935547
+        },
+        {
+          "question": "How long have Mel and her husband been married?",
+          "match": true,
+          "latency_ms": 780.5941104888916
+        },
+        {
+          "question": "What does Caroline's necklace symbolize?",
+          "match": true,
+          "latency_ms": 685.380220413208
+        },
+        {
+          "question": "What country is Caroline's grandma from?",
+          "match": true,
+          "latency_ms": 2794.938802719116
+        },
+        {
+          "question": "What was grandma's gift to Caroline?",
+          "match": true,
+          "latency_ms": 835.0260257720947
+        },
+        {
+          "question": "What is Melanie's hand-painted bowl a reminder of?",
+          "match": true,
+          "latency_ms": 2451.5562057495117
+        },
+        {
+          "question": "What did Melanie and her family do while camping?",
+          "match": true,
+          "latency_ms": 948.1558799743652
+        },
+        {
+          "question": "What kind of counseling and mental health services is Caroline interested in pursuing?",
+          "match": true,
+          "latency_ms": 662.9738807678223
+        },
+        {
+          "question": "What workshop did Caroline attend recently?",
+          "match": true,
+          "latency_ms": 676.0239601135254
+        },
+        {
+          "question": "What was discussed in the LGBTQ+ counseling workshop?",
+          "match": true,
+          "latency_ms": 596.7731475830078
+        },
+        {
+          "question": "What motivated Caroline to pursue counseling?",
+          "match": true,
+          "latency_ms": 654.0279388427734
+        },
+        {
+          "question": "What kind of place does Caroline want to create for people?",
+          "match": true,
+          "latency_ms": 702.6679515838623
+        },
+        {
+          "question": "Did Melanie make the black and white bowl in the photo?",
+          "match": true,
+          "latency_ms": 674.0899085998535
+        },
+        {
+          "question": "What kind of books does Caroline have in her library?",
+          "match": true,
+          "latency_ms": 1068.15505027771
+        },
+        {
+          "question": "What was Melanie's favorite book from her childhood?",
+          "match": true,
+          "latency_ms": 878.990888595581
+        },
+        {
+          "question": "What book did Caroline recommend to Melanie?",
+          "match": true,
+          "latency_ms": 658.9009761810303
+        },
+        {
+          "question": "What did Caroline take away from the book \"Becoming Nicole\"?",
+          "match": true,
+          "latency_ms": 769.4911956787109
+        },
+        {
+          "question": "What are the new shoes that Melanie got used for?",
+          "match": true,
+          "latency_ms": 778.0563831329346
+        },
+        {
+          "question": "What is Melanie's reason for getting into running?",
+          "match": true,
+          "latency_ms": 729.2611598968506
+        },
+        {
+          "question": "What does Melanie say running has been great for?",
+          "match": true,
+          "latency_ms": 730.7021617889404
+        },
+        {
+          "question": "What did Mel and her kids make during the pottery workshop?",
+          "match": true,
+          "latency_ms": 926.3176918029785
+        },
+        {
+          "question": "What kind of pot did Mel and her kids make with clay?",
+          "match": true,
+          "latency_ms": 599.761962890625
+        },
+        {
+          "question": "What creative project do Mel and her kids do together besides pottery?",
+          "match": true,
+          "latency_ms": 1429.3742179870605
+        },
+        {
+          "question": "What did Mel and her kids paint in their latest project in July 2023?",
+          "match": true,
+          "latency_ms": 861.065149307251
+        },
+        {
+          "question": "What did Caroline see at the council meeting for adoption?",
+          "match": true,
+          "latency_ms": 690.2039051055908
+        },
+        {
+          "question": "What do sunflowers represent according to Caroline?",
+          "match": false,
+          "latency_ms": 823.6238956451416
+        },
+        {
+          "question": "Why are flowers important to Melanie?",
+          "match": true,
+          "latency_ms": 796.7438697814941
+        },
+        {
+          "question": "What inspired Caroline's painting for the art show?",
+          "match": true,
+          "latency_ms": 829.9760818481445
+        },
+        {
+          "question": "How often does Melanie go to the beach with her kids?",
+          "match": false,
+          "latency_ms": 724.600076675415
+        },
+        {
+          "question": "What did Melanie and her family see during their camping trip last year?",
+          "match": true,
+          "latency_ms": 718.2309627532959
+        },
+        {
+          "question": "How did Melanie feel while watching the meteor shower?",
+          "match": false,
+          "latency_ms": 813.5759830474854
+        },
+        {
+          "question": "Whose birthday did Melanie celebrate recently?",
+          "match": true,
+          "latency_ms": 1212.7139568328857
+        },
+        {
+          "question": "Who performed at the concert at Melanie's daughter's birthday?",
+          "match": true,
+          "latency_ms": 649.2862701416016
+        },
+        {
+          "question": "Why did Melanie choose to use colors and patterns in her pottery project?",
+          "match": true,
+          "latency_ms": 816.5299892425537
+        },
+        {
+          "question": "What pet does Caroline have?",
+          "match": true,
+          "latency_ms": 856.6300868988037
+        },
+        {
+          "question": "What pets does Melanie have?",
+          "match": true,
+          "latency_ms": 768.7239646911621
+        },
+        {
+          "question": "Where did Oliver hide his bone once?",
+          "match": true,
+          "latency_ms": 713.4411334991455
+        },
+        {
+          "question": "What activity did Caroline used to do with her dad?",
+          "match": true,
+          "latency_ms": 860.2361679077148
+        },
+        {
+          "question": "What did Caroline make for a local church?",
+          "match": true,
+          "latency_ms": 645.5299854278564
+        },
+        {
+          "question": "What did Caroline find in her neighborhood during her walk?",
+          "match": false,
+          "latency_ms": 655.1032066345215
+        },
+        {
+          "question": "What did Caroline realize after her charity race?",
+          "match": false,
+          "latency_ms": 806.3030242919922
+        },
+        {
+          "question": "What are Melanie's plans for the summer with respect to adoption?",
+          "match": true,
+          "latency_ms": 720.0820446014404
+        },
+        {
+          "question": "What type of individuals does the adoption agency Melanie is considering support?",
+          "match": true,
+          "latency_ms": 722.0449447631836
+        },
+        {
+          "question": "Why did Melanie choose the adoption agency?",
+          "match": true,
+          "latency_ms": 760.4000568389893
+        },
+        {
+          "question": "What is Melanie excited about in her adoption process?",
+          "match": true,
+          "latency_ms": 901.1440277099609
+        },
+        {
+          "question": "What does Melanie's necklace symbolize?",
+          "match": false,
+          "latency_ms": 808.9227676391602
+        },
+        {
+          "question": "What country is Melanie's grandma from?",
+          "match": true,
+          "latency_ms": 649.5928764343262
+        },
+        {
+          "question": "What was grandma's gift to Melanie?",
+          "match": false,
+          "latency_ms": 664.2909049987793
+        },
+        {
+          "question": "What was grandpa's gift to Caroline?",
+          "match": false,
+          "latency_ms": 654.6111106872559
+        },
+        {
+          "question": "What is Caroline's hand-painted bowl a reminder of?",
+          "match": true,
+          "latency_ms": 690.8547878265381
+        },
+        {
+          "question": "What did Caroline and her family do while camping?",
+          "match": false,
+          "latency_ms": 708.3990573883057
+        },
+        {
+          "question": "What kind of counseling and mental health services is Melanie interested in pursuing?",
+          "match": false,
+          "latency_ms": 679.4331073760986
+        },
+        {
+          "question": "What kind of counseling workshop did Melanie attend recently?",
+          "match": false,
+          "latency_ms": 649.4531631469727
+        },
+        {
+          "question": "What motivated Melanie to pursue counseling?",
+          "match": false,
+          "latency_ms": 765.1629447937012
+        },
+        {
+          "question": "What kind of place does Melanie want to create for people?",
+          "match": false,
+          "latency_ms": 688.209056854248
+        },
+        {
+          "question": "Did Caroline make the black and white bowl in the photo?",
+          "match": false,
+          "latency_ms": 668.2469844818115
+        },
+        {
+          "question": "What are the new shoes that Caroline got used for?",
+          "match": false,
+          "latency_ms": 807.7707290649414
+        },
+        {
+          "question": "What is Caroline's reason for getting into running?",
+          "match": false,
+          "latency_ms": 671.5431213378906
+        },
+        {
+          "question": "What does Caroline say running has been great for?",
+          "match": true,
+          "latency_ms": 738.0750179290771
+        },
+        {
+          "question": "What did Melanie see at the council meeting for adoption?",
+          "match": false,
+          "latency_ms": 963.8590812683105
+        },
+        {
+          "question": "What inspired Melanie's painting for the art show?",
+          "match": false,
+          "latency_ms": 939.1269683837891
+        },
+        {
+          "question": "What inspired Caroline's sculpture for the art show?",
+          "match": true,
+          "latency_ms": 744.373083114624
+        },
+        {
+          "question": "How often does Caroline go to the beach with her kids?",
+          "match": false,
+          "latency_ms": 624.108076095581
+        },
+        {
+          "question": "What did Caroline and her family see during their camping trip last year?",
+          "match": false,
+          "latency_ms": 793.9760684967041
+        },
+        {
+          "question": "How did Caroline feel while watching the meteor shower?",
+          "match": false,
+          "latency_ms": 757.7919960021973
+        },
+        {
+          "question": "Why did Caroline choose to use colors and patterns in her pottery project?",
+          "match": false,
+          "latency_ms": 728.1162738800049
+        },
+        {
+          "question": "Is Oscar Melanie's pet?",
+          "match": true,
+          "latency_ms": 825.6230354309082
+        },
+        {
+          "question": "Where did Oscar hide his bone once?",
+          "match": false,
+          "latency_ms": 770.1880931854248
+        },
+        {
+          "question": "What activity did Melanie used to do with her dad?",
+          "match": false,
+          "latency_ms": 668.720006942749
+        },
+        {
+          "question": "What did Melanie make for a local church?",
+          "match": true,
+          "latency_ms": 727.492094039917
+        },
+        {
+          "question": "What did Melanie find in her neighborhood during her walk?",
+          "match": false,
+          "latency_ms": 938.0040168762207
+        }
+      ]
+    },
+    {
+      "message_count": 519,
+      "timestamp": "2026-02-11T04:19:41.555575+00:00",
+      "eval_query_time": "2023-10-22T09:55:00+00:00",
+      "metrics": {
+        "memcells": 24,
+        "scenes": 3,
+        "conflicts": 1,
+        "dedup_rate": 6.422018348623848,
+        "retrieval_accuracy": 70.76271186440678,
+        "valid_qa_count": 236,
+        "latency_p50": 769.7708606719971,
+        "latency_p90": 1052.6185035705566,
+        "latency_avg": 827.6018358893314,
+        "skipped_no_evidence_qa_count": 2
+      },
+      "qa_results": [
+        {
+          "question": "When did Caroline go to the LGBTQ support group?",
+          "match": true,
+          "latency_ms": 780.6551456451416
+        },
+        {
+          "question": "When did Melanie paint a sunrise?",
+          "match": true,
+          "latency_ms": 1238.8620376586914
+        },
+        {
+          "question": "What fields would Caroline be likely to pursue in her educaton?",
+          "match": true,
+          "latency_ms": 859.2519760131836
+        },
+        {
+          "question": "What did Caroline research?",
+          "match": true,
+          "latency_ms": 792.0660972595215
+        },
+        {
+          "question": "What is Caroline's identity?",
+          "match": true,
+          "latency_ms": 942.2392845153809
+        },
+        {
+          "question": "When did Melanie run a charity race?",
+          "match": true,
+          "latency_ms": 721.5371131896973
+        },
+        {
+          "question": "When is Melanie planning on going camping?",
+          "match": false,
+          "latency_ms": 792.6690578460693
+        },
+        {
+          "question": "What is Caroline's relationship status?",
+          "match": true,
+          "latency_ms": 814.2087459564209
+        },
+        {
+          "question": "When did Caroline give a speech at a school?",
+          "match": true,
+          "latency_ms": 947.9012489318848
+        },
+        {
+          "question": "When did Caroline meet up with her friends, family, and mentors?",
+          "match": true,
+          "latency_ms": 709.4717025756836
+        },
+        {
+          "question": "How long has Caroline had her current group of friends for?",
+          "match": true,
+          "latency_ms": 862.2841835021973
+        },
+        {
+          "question": "Where did Caroline move from 4 years ago?",
+          "match": true,
+          "latency_ms": 745.8198070526123
+        },
+        {
+          "question": "How long ago was Caroline's 18th birthday?",
+          "match": true,
+          "latency_ms": 712.1889591217041
+        },
+        {
+          "question": "What career path has Caroline decided to persue?",
+          "match": true,
+          "latency_ms": 832.054853439331
+        },
+        {
+          "question": "Would Caroline still want to pursue counseling as a career if she hadn't received support growing up?",
+          "match": true,
+          "latency_ms": 1334.6118927001953
+        },
+        {
+          "question": "What activities does Melanie partake in?",
+          "match": true,
+          "latency_ms": 639.3468379974365
+        },
+        {
+          "question": "When did Melanie sign up for a pottery class?",
+          "match": false,
+          "latency_ms": 854.7539710998535
+        },
+        {
+          "question": "When is Caroline going to the transgender conference?",
+          "match": true,
+          "latency_ms": 706.4201831817627
+        },
+        {
+          "question": "Where has Melanie camped?",
+          "match": true,
+          "latency_ms": 663.2080078125
+        },
+        {
+          "question": "What do Melanie's kids like?",
+          "match": true,
+          "latency_ms": 796.8792915344238
+        },
+        {
+          "question": "When did Melanie go to the museum?",
+          "match": false,
+          "latency_ms": 714.8661613464355
+        },
+        {
+          "question": "When did Caroline have a picnic?",
+          "match": true,
+          "latency_ms": 667.9387092590332
+        },
+        {
+          "question": "Would Caroline likely have Dr. Seuss books on her bookshelf?",
+          "match": true,
+          "latency_ms": 874.5279312133789
+        },
+        {
+          "question": "What books has Melanie read?",
+          "match": true,
+          "latency_ms": 827.6960849761963
+        },
+        {
+          "question": "What does Melanie do to destress?",
+          "match": true,
+          "latency_ms": 827.5840282440186
+        },
+        {
+          "question": "When did Caroline go to the LGBTQ conference?",
+          "match": true,
+          "latency_ms": 780.479907989502
+        },
+        {
+          "question": "When did Melanie read the book \"nothing is impossible\"?",
+          "match": true,
+          "latency_ms": 717.3421382904053
+        },
+        {
+          "question": "Would Caroline pursue writing as a career option?",
+          "match": true,
+          "latency_ms": 829.0417194366455
+        },
+        {
+          "question": "When did Caroline go to the adoption meeting?",
+          "match": false,
+          "latency_ms": 627.7339458465576
+        },
+        {
+          "question": "When did Melanie go to the pottery workshop?",
+          "match": false,
+          "latency_ms": 812.9909038543701
+        },
+        {
+          "question": "When did Melanie go camping in June?",
+          "match": true,
+          "latency_ms": 667.334794998169
+        },
+        {
+          "question": "What LGBTQ+ events has Caroline participated in?",
+          "match": true,
+          "latency_ms": 752.722978591919
+        },
+        {
+          "question": "When did Caroline go to a pride parade during the summer?",
+          "match": true,
+          "latency_ms": 776.4151096343994
+        },
+        {
+          "question": "What events has Caroline participated in to help children?",
+          "match": true,
+          "latency_ms": 1124.9170303344727
+        },
+        {
+          "question": "When did Melanie go camping in July?",
+          "match": true,
+          "latency_ms": 803.4820556640625
+        },
+        {
+          "question": "When did Caroline join a mentorship program?",
+          "match": true,
+          "latency_ms": 807.7592849731445
+        },
+        {
+          "question": "What did Melanie paint recently?",
+          "match": false,
+          "latency_ms": 661.3821983337402
+        },
+        {
+          "question": "What activities has Melanie done with her family?",
+          "match": true,
+          "latency_ms": 670.579195022583
+        },
+        {
+          "question": "In what ways is Caroline participating in the LGBTQ community?",
+          "match": true,
+          "latency_ms": 837.4128341674805
+        },
+        {
+          "question": "How many times has Melanie gone to the beach in 2023?",
+          "match": false,
+          "latency_ms": 921.4098453521729
+        },
+        {
+          "question": "When did Caroline join a new activist group?",
+          "match": true,
+          "latency_ms": 718.372106552124
+        },
+        {
+          "question": "Would Melanie be more interested in going to a national park or a theme park?",
+          "match": true,
+          "latency_ms": 780.9627056121826
+        },
+        {
+          "question": "What kind of art does Caroline make?",
+          "match": true,
+          "latency_ms": 946.382999420166
+        },
+        {
+          "question": "When is Melanie's daughter's birthday?",
+          "match": true,
+          "latency_ms": 777.897834777832
+        },
+        {
+          "question": "When did Caroline attend a pride parade in August?",
+          "match": true,
+          "latency_ms": 915.928840637207
+        },
+        {
+          "question": "Who supports Caroline when she has a negative experience?",
+          "match": true,
+          "latency_ms": 713.3970260620117
+        },
+        {
+          "question": "What types of pottery have Melanie and her kids made?",
+          "match": true,
+          "latency_ms": 666.2099361419678
+        },
+        {
+          "question": "When did Caroline and Melanie go to a pride fesetival together?",
+          "match": true,
+          "latency_ms": 658.0798625946045
+        },
+        {
+          "question": "What would Caroline's political leaning likely be?",
+          "match": true,
+          "latency_ms": 737.1089458465576
+        },
+        {
+          "question": "What has Melanie painted?",
+          "match": true,
+          "latency_ms": 816.5600299835205
+        },
+        {
+          "question": "What are Melanie's pets' names?",
+          "match": true,
+          "latency_ms": 726.7780303955078
+        },
+        {
+          "question": "When did Caroline apply to adoption agencies?",
+          "match": true,
+          "latency_ms": 845.6997871398926
+        },
+        {
+          "question": "When did Caroline draw a self-portrait?",
+          "match": true,
+          "latency_ms": 778.6369323730469
+        },
+        {
+          "question": "What subject have Caroline and Melanie both painted?",
+          "match": true,
+          "latency_ms": 881.6368579864502
+        },
+        {
+          "question": "What symbols are important to Caroline?",
+          "match": true,
+          "latency_ms": 1343.7137603759766
+        },
+        {
+          "question": "When did Caroline encounter people on a hike and have a negative experience?",
+          "match": true,
+          "latency_ms": 881.525993347168
+        },
+        {
+          "question": "When did Melanie make a plate in pottery class?",
+          "match": true,
+          "latency_ms": 809.8318576812744
+        },
+        {
+          "question": "Would Caroline be considered religious?",
+          "match": false,
+          "latency_ms": 654.5982360839844
+        },
+        {
+          "question": "What instruments does Melanie play?",
+          "match": true,
+          "latency_ms": 869.2948818206787
+        },
+        {
+          "question": "What musical artists/bands has Melanie seen?",
+          "match": true,
+          "latency_ms": 1605.766773223877
+        },
+        {
+          "question": "When did Melanie go to the park?",
+          "match": false,
+          "latency_ms": 790.6002998352051
+        },
+        {
+          "question": "When is Caroline's youth center putting on a talent show?",
+          "match": true,
+          "latency_ms": 980.004072189331
+        },
+        {
+          "question": "Would Melanie likely enjoy the song \"The Four Seasons\" by Vivaldi?",
+          "match": true,
+          "latency_ms": 1787.0099544525146
+        },
+        {
+          "question": "What are some changes Caroline has faced during her transition journey?",
+          "match": true,
+          "latency_ms": 2073.3258724212646
+        },
+        {
+          "question": "What does Melanie do with her family on hikes?",
+          "match": true,
+          "latency_ms": 697.2150802612305
+        },
+        {
+          "question": "When did Caroline go biking with friends?",
+          "match": true,
+          "latency_ms": 901.6649723052979
+        },
+        {
+          "question": "How long has Melanie been practicing art?",
+          "match": true,
+          "latency_ms": 755.9678554534912
+        },
+        {
+          "question": "What personality traits might Melanie say Caroline has?",
+          "match": true,
+          "latency_ms": 700.3600597381592
+        },
+        {
+          "question": "What transgender-specific events has Caroline attended?",
+          "match": true,
+          "latency_ms": 731.1820983886719
+        },
+        {
+          "question": "What book did Melanie read from Caroline's suggestion?",
+          "match": true,
+          "latency_ms": 681.9698810577393
+        },
+        {
+          "question": "When did Melanie's friend adopt a child?",
+          "match": false,
+          "latency_ms": 726.6509532928467
+        },
+        {
+          "question": "When did Melanie get hurt?",
+          "match": true,
+          "latency_ms": 679.4202327728271
+        },
+        {
+          "question": "When did Melanie's family go on a roadtrip?",
+          "match": true,
+          "latency_ms": 1051.2309074401855
+        },
+        {
+          "question": "How many children does Melanie have?",
+          "match": true,
+          "latency_ms": 1218.6040878295898
+        },
+        {
+          "question": "When did Melanie go on a hike after the roadtrip?",
+          "match": false,
+          "latency_ms": 1024.4331359863281
+        },
+        {
+          "question": "Would Melanie go on another roadtrip soon?",
+          "match": true,
+          "latency_ms": 623.607873916626
+        },
+        {
+          "question": "What items has Melanie bought?",
+          "match": false,
+          "latency_ms": 879.1348934173584
+        },
+        {
+          "question": "When did Caroline pass the adoption interview?",
+          "match": false,
+          "latency_ms": 699.246883392334
+        },
+        {
+          "question": "When did Melanie buy the figurines?",
+          "match": true,
+          "latency_ms": 703.6631107330322
+        },
+        {
+          "question": "Would Caroline want to move back to her home country soon?",
+          "match": true,
+          "latency_ms": 731.9068908691406
+        },
+        {
+          "question": "What did the charity race raise awareness for?",
+          "match": true,
+          "latency_ms": 763.491153717041
+        },
+        {
+          "question": "What did Melanie realize after the charity race?",
+          "match": true,
+          "latency_ms": 836.6107940673828
+        },
+        {
+          "question": "How does Melanie prioritize self-care?",
+          "match": true,
+          "latency_ms": 743.4201240539551
+        },
+        {
+          "question": "What are Caroline's plans for the summer?",
+          "match": true,
+          "latency_ms": 631.9608688354492
+        },
+        {
+          "question": "What type of individuals does the adoption agency Caroline is considering support?",
+          "match": true,
+          "latency_ms": 749.0189075469971
+        },
+        {
+          "question": "Why did Caroline choose the adoption agency?",
+          "match": true,
+          "latency_ms": 1104.0570735931396
+        },
+        {
+          "question": "What is Caroline excited about in the adoption process?",
+          "match": true,
+          "latency_ms": 1237.502098083496
+        },
+        {
+          "question": "What does Melanie think about Caroline's decision to adopt?",
+          "match": true,
+          "latency_ms": 711.824893951416
+        },
+        {
+          "question": "How long have Mel and her husband been married?",
+          "match": true,
+          "latency_ms": 793.900728225708
+        },
+        {
+          "question": "What does Caroline's necklace symbolize?",
+          "match": true,
+          "latency_ms": 848.642110824585
+        },
+        {
+          "question": "What country is Caroline's grandma from?",
+          "match": true,
+          "latency_ms": 836.2748622894287
+        },
+        {
+          "question": "What was grandma's gift to Caroline?",
+          "match": true,
+          "latency_ms": 925.8439540863037
+        },
+        {
+          "question": "What is Melanie's hand-painted bowl a reminder of?",
+          "match": true,
+          "latency_ms": 667.943000793457
+        },
+        {
+          "question": "What did Melanie and her family do while camping?",
+          "match": true,
+          "latency_ms": 693.2930946350098
+        },
+        {
+          "question": "What kind of counseling and mental health services is Caroline interested in pursuing?",
+          "match": true,
+          "latency_ms": 829.3061256408691
+        },
+        {
+          "question": "What workshop did Caroline attend recently?",
+          "match": true,
+          "latency_ms": 672.457218170166
+        },
+        {
+          "question": "What was discussed in the LGBTQ+ counseling workshop?",
+          "match": true,
+          "latency_ms": 798.3722686767578
+        },
+        {
+          "question": "What motivated Caroline to pursue counseling?",
+          "match": true,
+          "latency_ms": 770.4448699951172
+        },
+        {
+          "question": "What kind of place does Caroline want to create for people?",
+          "match": true,
+          "latency_ms": 725.3029346466064
+        },
+        {
+          "question": "Did Melanie make the black and white bowl in the photo?",
+          "match": true,
+          "latency_ms": 715.0561809539795
+        },
+        {
+          "question": "What kind of books does Caroline have in her library?",
+          "match": true,
+          "latency_ms": 661.1812114715576
+        },
+        {
+          "question": "What was Melanie's favorite book from her childhood?",
+          "match": false,
+          "latency_ms": 747.2720146179199
+        },
+        {
+          "question": "What book did Caroline recommend to Melanie?",
+          "match": true,
+          "latency_ms": 654.7589302062988
+        },
+        {
+          "question": "What did Caroline take away from the book \"Becoming Nicole\"?",
+          "match": true,
+          "latency_ms": 638.0701065063477
+        },
+        {
+          "question": "What are the new shoes that Melanie got used for?",
+          "match": true,
+          "latency_ms": 763.1220817565918
+        },
+        {
+          "question": "What is Melanie's reason for getting into running?",
+          "match": true,
+          "latency_ms": 765.3918266296387
+        },
+        {
+          "question": "What does Melanie say running has been great for?",
+          "match": true,
+          "latency_ms": 884.7041130065918
+        },
+        {
+          "question": "What did Mel and her kids make during the pottery workshop?",
+          "match": true,
+          "latency_ms": 667.7858829498291
+        },
+        {
+          "question": "What kind of pot did Mel and her kids make with clay?",
+          "match": true,
+          "latency_ms": 761.8942260742188
+        },
+        {
+          "question": "What creative project do Mel and her kids do together besides pottery?",
+          "match": true,
+          "latency_ms": 988.2118701934814
+        },
+        {
+          "question": "What did Mel and her kids paint in their latest project in July 2023?",
+          "match": true,
+          "latency_ms": 713.4950160980225
+        },
+        {
+          "question": "What did Caroline see at the council meeting for adoption?",
+          "match": true,
+          "latency_ms": 714.3537998199463
+        },
+        {
+          "question": "What do sunflowers represent according to Caroline?",
+          "match": false,
+          "latency_ms": 682.8160285949707
+        },
+        {
+          "question": "Why are flowers important to Melanie?",
+          "match": true,
+          "latency_ms": 640.2339935302734
+        },
+        {
+          "question": "What inspired Caroline's painting for the art show?",
+          "match": true,
+          "latency_ms": 791.027307510376
+        },
+        {
+          "question": "How often does Melanie go to the beach with her kids?",
+          "match": false,
+          "latency_ms": 687.1569156646729
+        },
+        {
+          "question": "What did Melanie and her family see during their camping trip last year?",
+          "match": true,
+          "latency_ms": 867.3801422119141
+        },
+        {
+          "question": "How did Melanie feel while watching the meteor shower?",
+          "match": false,
+          "latency_ms": 725.9180545806885
+        },
+        {
+          "question": "Whose birthday did Melanie celebrate recently?",
+          "match": true,
+          "latency_ms": 931.9789409637451
+        },
+        {
+          "question": "Who performed at the concert at Melanie's daughter's birthday?",
+          "match": true,
+          "latency_ms": 676.8190860748291
+        },
+        {
+          "question": "Why did Melanie choose to use colors and patterns in her pottery project?",
+          "match": true,
+          "latency_ms": 622.8342056274414
+        },
+        {
+          "question": "What pet does Caroline have?",
+          "match": true,
+          "latency_ms": 669.5151329040527
+        },
+        {
+          "question": "What pets does Melanie have?",
+          "match": true,
+          "latency_ms": 765.93017578125
+        },
+        {
+          "question": "Where did Oliver hide his bone once?",
+          "match": true,
+          "latency_ms": 1230.5481433868408
+        },
+        {
+          "question": "What activity did Caroline used to do with her dad?",
+          "match": true,
+          "latency_ms": 792.3939228057861
+        },
+        {
+          "question": "What did Caroline make for a local church?",
+          "match": true,
+          "latency_ms": 883.2950592041016
+        },
+        {
+          "question": "What did Caroline find in her neighborhood during her walk?",
+          "match": false,
+          "latency_ms": 1220.3140258789062
+        },
+        {
+          "question": "Which song motivates Caroline to be courageous?",
+          "match": true,
+          "latency_ms": 626.3110637664795
+        },
+        {
+          "question": "Which  classical musicians does Melanie enjoy listening to?",
+          "match": true,
+          "latency_ms": 691.2519931793213
+        },
+        {
+          "question": "Who is Melanie a fan of in terms of modern music?",
+          "match": false,
+          "latency_ms": 1034.447193145752
+        },
+        {
+          "question": "How long has Melanie been creating art?",
+          "match": true,
+          "latency_ms": 808.5861206054688
+        },
+        {
+          "question": "What precautionary sign did Melanie see at the caf\u00e9?",
+          "match": false,
+          "latency_ms": 741.1198616027832
+        },
+        {
+          "question": "What advice does Caroline give for getting started with adoption?",
+          "match": true,
+          "latency_ms": 806.9849014282227
+        },
+        {
+          "question": "What setback did Melanie face in October 2023?",
+          "match": true,
+          "latency_ms": 843.5487747192383
+        },
+        {
+          "question": "What does Melanie do to keep herself busy during her pottery break?",
+          "match": true,
+          "latency_ms": 750.0386238098145
+        },
+        {
+          "question": "What painting did Melanie show to Caroline on October 13, 2023?",
+          "match": true,
+          "latency_ms": 782.6399803161621
+        },
+        {
+          "question": "What kind of painting did Caroline share with Melanie on October 13, 2023?",
+          "match": true,
+          "latency_ms": 893.6340808868408
+        },
+        {
+          "question": "What was the poetry reading that Caroline attended about?",
+          "match": true,
+          "latency_ms": 926.7230033874512
+        },
+        {
+          "question": "What did the posters at the poetry reading say?",
+          "match": true,
+          "latency_ms": 632.4679851531982
+        },
+        {
+          "question": "What does Caroline's drawing symbolize for her?",
+          "match": true,
+          "latency_ms": 624.0549087524414
+        },
+        {
+          "question": "How do Melanie and Caroline describe their journey through life together?",
+          "match": true,
+          "latency_ms": 642.8430080413818
+        },
+        {
+          "question": "What happened to Melanie's son on their road trip?",
+          "match": false,
+          "latency_ms": 747.0357418060303
+        },
+        {
+          "question": "How did Melanie's son handle the accident?",
+          "match": true,
+          "latency_ms": 613.5098934173584
+        },
+        {
+          "question": "How did Melanie feel about her family after the accident?",
+          "match": true,
+          "latency_ms": 854.2258739471436
+        },
+        {
+          "question": "How did Melanie's children handle the accident?",
+          "match": true,
+          "latency_ms": 672.5189685821533
+        },
+        {
+          "question": "How did Melanie feel after the accident?",
+          "match": true,
+          "latency_ms": 699.8457908630371
+        },
+        {
+          "question": "What was Melanie's reaction to her children enjoying the Grand Canyon?",
+          "match": true,
+          "latency_ms": 727.3197174072266
+        },
+        {
+          "question": "What do Melanie's family give her?",
+          "match": true,
+          "latency_ms": 647.7301120758057
+        },
+        {
+          "question": "How did Melanie feel about her family supporting her?",
+          "match": true,
+          "latency_ms": 874.9020099639893
+        },
+        {
+          "question": "What did Melanie do after the road trip to relax?",
+          "match": true,
+          "latency_ms": 931.07008934021
+        },
+        {
+          "question": "What did Caroline realize after her charity race?",
+          "match": false,
+          "latency_ms": 763.9579772949219
+        },
+        {
+          "question": "What are Melanie's plans for the summer with respect to adoption?",
+          "match": false,
+          "latency_ms": 711.7900848388672
+        },
+        {
+          "question": "What type of individuals does the adoption agency Melanie is considering support?",
+          "match": true,
+          "latency_ms": 886.5551948547363
+        },
+        {
+          "question": "Why did Melanie choose the adoption agency?",
+          "match": false,
+          "latency_ms": 821.8419551849365
+        },
+        {
+          "question": "What is Melanie excited about in her adoption process?",
+          "match": true,
+          "latency_ms": 760.1230144500732
+        },
+        {
+          "question": "What does Melanie's necklace symbolize?",
+          "match": false,
+          "latency_ms": 698.0788707733154
+        },
+        {
+          "question": "What country is Melanie's grandma from?",
+          "match": true,
+          "latency_ms": 772.1998691558838
+        },
+        {
+          "question": "What was grandma's gift to Melanie?",
+          "match": false,
+          "latency_ms": 1213.2258415222168
+        },
+        {
+          "question": "What was grandpa's gift to Caroline?",
+          "match": false,
+          "latency_ms": 697.3788738250732
+        },
+        {
+          "question": "What is Caroline's hand-painted bowl a reminder of?",
+          "match": true,
+          "latency_ms": 718.2409763336182
+        },
+        {
+          "question": "What did Caroline and her family do while camping?",
+          "match": false,
+          "latency_ms": 674.0942001342773
+        },
+        {
+          "question": "What kind of counseling and mental health services is Melanie interested in pursuing?",
+          "match": false,
+          "latency_ms": 737.3690605163574
+        },
+        {
+          "question": "What kind of counseling workshop did Melanie attend recently?",
+          "match": true,
+          "latency_ms": 723.7589359283447
+        },
+        {
+          "question": "What motivated Melanie to pursue counseling?",
+          "match": false,
+          "latency_ms": 810.7180595397949
+        },
+        {
+          "question": "What kind of place does Melanie want to create for people?",
+          "match": false,
+          "latency_ms": 890.6869888305664
+        },
+        {
+          "question": "Did Caroline make the black and white bowl in the photo?",
+          "match": false,
+          "latency_ms": 756.9830417633057
+        },
+        {
+          "question": "What are the new shoes that Caroline got used for?",
+          "match": false,
+          "latency_ms": 870.880126953125
+        },
+        {
+          "question": "What is Caroline's reason for getting into running?",
+          "match": false,
+          "latency_ms": 2225.177049636841
+        },
+        {
+          "question": "What does Caroline say running has been great for?",
+          "match": true,
+          "latency_ms": 784.2180728912354
+        },
+        {
+          "question": "What did Melanie see at the council meeting for adoption?",
+          "match": false,
+          "latency_ms": 1383.3060264587402
+        },
+        {
+          "question": "What inspired Melanie's painting for the art show?",
+          "match": false,
+          "latency_ms": 988.9910221099854
+        },
+        {
+          "question": "What inspired Caroline's sculpture for the art show?",
+          "match": true,
+          "latency_ms": 1344.1088199615479
+        },
+        {
+          "question": "How often does Caroline go to the beach with her kids?",
+          "match": false,
+          "latency_ms": 1110.6328964233398
+        },
+        {
+          "question": "What did Caroline and her family see during their camping trip last year?",
+          "match": false,
+          "latency_ms": 1245.3548908233643
+        },
+        {
+          "question": "How did Caroline feel while watching the meteor shower?",
+          "match": false,
+          "latency_ms": 1201.646089553833
+        },
+        {
+          "question": "Why did Caroline choose to use colors and patterns in her pottery project?",
+          "match": false,
+          "latency_ms": 1589.1377925872803
+        },
+        {
+          "question": "Is Oscar Melanie's pet?",
+          "match": true,
+          "latency_ms": 726.3450622558594
+        },
+        {
+          "question": "Where did Oscar hide his bone once?",
+          "match": false,
+          "latency_ms": 1103.360891342163
+        },
+        {
+          "question": "What activity did Melanie used to do with her dad?",
+          "match": false,
+          "latency_ms": 998.8889694213867
+        },
+        {
+          "question": "What did Melanie make for a local church?",
+          "match": true,
+          "latency_ms": 1280.5497646331787
+        },
+        {
+          "question": "What did Melanie find in her neighborhood during her walk?",
+          "match": false,
+          "latency_ms": 776.4742374420166
+        },
+        {
+          "question": "Which song motivates Melanie to be courageous?",
+          "match": false,
+          "latency_ms": 767.0221328735352
+        },
+        {
+          "question": "What type of instrument does Caroline play?",
+          "match": true,
+          "latency_ms": 897.6929187774658
+        },
+        {
+          "question": "Which classical musicians does Caroline enjoy listening to?",
+          "match": false,
+          "latency_ms": 799.1399765014648
+        },
+        {
+          "question": "Who is Caroline a fan of in terms of modern music?",
+          "match": true,
+          "latency_ms": 626.3120174407959
+        },
+        {
+          "question": "What precautionary sign did Caroline see at the caf\u00e9?",
+          "match": false,
+          "latency_ms": 1005.8739185333252
+        },
+        {
+          "question": "What setback did Caroline face recently?",
+          "match": false,
+          "latency_ms": 792.233943939209
+        },
+        {
+          "question": "What does Caroline do to keep herself busy during her pottery break?",
+          "match": false,
+          "latency_ms": 638.2339000701904
+        },
+        {
+          "question": "What was the poetry reading that Melanie attended about?",
+          "match": true,
+          "latency_ms": 929.6109676361084
+        },
+        {
+          "question": "What happened to Caroline's son on their road trip?",
+          "match": false,
+          "latency_ms": 926.0151386260986
+        },
+        {
+          "question": "How did Caroline's son handle the accident?",
+          "match": false,
+          "latency_ms": 720.2892303466797
+        },
+        {
+          "question": "How did Caroline feel about her family after the accident?",
+          "match": false,
+          "latency_ms": 720.5290794372559
+        },
+        {
+          "question": "How did Caroline's children handle the accident?",
+          "match": false,
+          "latency_ms": 870.2261447906494
+        },
+        {
+          "question": "How did Caroline feel after the accident?",
+          "match": false,
+          "latency_ms": 763.1330490112305
+        },
+        {
+          "question": "What was Caroline's reaction to her children enjoying the Grand Canyon?",
+          "match": false,
+          "latency_ms": 843.2869911193848
+        },
+        {
+          "question": "What did Caroline do after the road trip to relax?",
+          "match": false,
+          "latency_ms": 683.0089092254639
+        },
+        {
+          "question": "What does Caroline love most about camping with her family?",
+          "match": false,
+          "latency_ms": 780.0137996673584
+        },
+        {
+          "question": "When Jon has lost his job as a banker?",
+          "match": true,
+          "latency_ms": 733.6010932922363
+        },
+        {
+          "question": "When Gina has lost her job at Door Dash?",
+          "match": true,
+          "latency_ms": 809.0291023254395
+        },
+        {
+          "question": "How do Jon and Gina both like to destress?",
+          "match": true,
+          "latency_ms": 677.7348518371582
+        },
+        {
+          "question": "What do Jon and Gina both have in common?",
+          "match": true,
+          "latency_ms": 794.4228649139404
+        },
+        {
+          "question": "Why did Jon decide to start his dance studio?",
+          "match": true,
+          "latency_ms": 872.8280067443848
+        },
+        {
+          "question": "What Jon thinks the ideal dance studio should look like?",
+          "match": true,
+          "latency_ms": 630.626916885376
+        },
+        {
+          "question": "When is Jon's group performing at a festival?",
+          "match": false,
+          "latency_ms": 727.6358604431152
+        },
+        {
+          "question": "When did Gina launch an ad campaign for her store?",
+          "match": true,
+          "latency_ms": 1055.8562278747559
+        },
+        {
+          "question": "When was Jon in Paris?",
+          "match": true,
+          "latency_ms": 769.096851348877
+        },
+        {
+          "question": "When did Gina team up with a local artist for some cool designs?",
+          "match": true,
+          "latency_ms": 706.3729763031006
+        },
+        {
+          "question": "When did Gina get her tattoo?",
+          "match": true,
+          "latency_ms": 794.1040992736816
+        },
+        {
+          "question": "What is Gina's favorite style of dance?",
+          "match": true,
+          "latency_ms": 720.8666801452637
+        },
+        {
+          "question": "What is Jon's favorite style of dance?",
+          "match": true,
+          "latency_ms": 731.9629192352295
+        },
+        {
+          "question": "What was Gina's favorite dancing memory?",
+          "match": true,
+          "latency_ms": 657.1249961853027
+        },
+        {
+          "question": "What kind of dance piece did Gina's team perform to win first place?",
+          "match": true,
+          "latency_ms": 655.6611061096191
+        },
+        {
+          "question": "What do the dancers in the photo represent?",
+          "match": true,
+          "latency_ms": 701.2639045715332
+        },
+        {
+          "question": "What does Gina say about the dancers in the photo?",
+          "match": false,
+          "latency_ms": 1045.2258586883545
+        },
+        {
+          "question": "What is Jon's attitude towards being part of the dance festival?",
+          "match": true,
+          "latency_ms": 703.2020092010498
+        },
+        {
+          "question": "What kind of flooring is Jon looking for in his dance studio?",
+          "match": true,
+          "latency_ms": 969.3799018859863
+        },
+        {
+          "question": "What did Gina find for her clothing store on 1 February, 2023?",
+          "match": true,
+          "latency_ms": 717.5161838531494
+        },
+        {
+          "question": "What did Gina design for her store?",
+          "match": true,
+          "latency_ms": 660.693883895874
+        },
+        {
+          "question": "What did Gina want her customers to feel in her store?",
+          "match": true,
+          "latency_ms": 878.3671855926514
+        },
+        {
+          "question": "What did Jon say about Gina's progress with her store?",
+          "match": true,
+          "latency_ms": 706.636905670166
+        },
+        {
+          "question": "What made Gina choose the furniture and decor for her store?",
+          "match": true,
+          "latency_ms": 787.1360778808594
+        },
+        {
+          "question": "What did Jon say about creating a special experience for customers?",
+          "match": true,
+          "latency_ms": 608.6699962615967
+        },
+        {
+          "question": "What did Gina say about creating an experience for her customers?",
+          "match": true,
+          "latency_ms": 784.95192527771
+        },
+        {
+          "question": "How is Gina's store doing?",
+          "match": true,
+          "latency_ms": 858.7908744812012
+        },
+        {
+          "question": "What does Gina's tattoo symbolize?",
+          "match": true,
+          "latency_ms": 792.1280860900879
+        },
+        {
+          "question": "What is Jon's favorite style of painting?",
+          "match": false,
+          "latency_ms": 645.2620029449463
+        },
+        {
+          "question": "What was Jon's favorite dancing memory?",
+          "match": false,
+          "latency_ms": 765.5799388885498
+        },
+        {
+          "question": "What kind of dance piece did Jon's team perform to win first place?",
+          "match": false,
+          "latency_ms": 626.7900466918945
+        },
+        {
+          "question": "What is Gina's attitude towards participating in the dance festival?",
+          "match": false,
+          "latency_ms": 693.1219100952148
+        },
+        {
+          "question": "What kind of flooring is Gina looking for in her dance studio?",
+          "match": false,
+          "latency_ms": 732.9819202423096
+        },
+        {
+          "question": "What did Jon find for his clothing store on 1 February, 2023?",
+          "match": false,
+          "latency_ms": 626.9629001617432
+        },
+        {
+          "question": "What did Jon design for his store?",
+          "match": false,
+          "latency_ms": 726.7138957977295
+        },
+        {
+          "question": "What did Jon want his customers to feel in her store?",
+          "match": false,
+          "latency_ms": 957.1352005004883
+        },
+        {
+          "question": "What made Jon choose the furniture and decor for his store?",
+          "match": false,
+          "latency_ms": 753.7662982940674
+        },
+        {
+          "question": "How is Jon's store doing?",
+          "match": false,
+          "latency_ms": 674.238920211792
+        },
+        {
+          "question": "What does Jon's tattoo symbolize?",
+          "match": false,
+          "latency_ms": 740.3311729431152
+        }
+      ]
+    }
+  ]
+}
